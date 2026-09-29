@@ -1,0 +1,110 @@
+{
+  "id": "hypoglycaemia-sulfonylurea",
+  "title": "Sulfonylurea-induced hypoglycaemia",
+  "card": {
+    "complaint": "Found confused and sweaty at home",
+    "discipline": "Endocrinology",
+    "setting": "Emergency department",
+    "difficulty": "Foundation",
+    "minutes": 6
+  },
+  "patient": { "name": "Lakshmi Iyer", "age": 67, "sex": "F", "weight": 62 },
+  "triage": {
+    "note": "Brought in by her daughter, who found her confused, sweaty and slurring her words at 7 am. Type 2 diabetes. Had a stomach upset yesterday and skipped dinner.",
+    "vitals": { "HR": "104", "BP": "148/86", "RR": "18", "SpO2": "97% air", "Temp": "36.3", "GCS": "12" }
+  },
+  "physiology": {
+    "start": 0.5,
+    "rate": 0.05,
+    "recovery": 0.1,
+    "rhythm": { "type": "sinus" },
+    "best":    { "hr": 80,  "sbp": 134, "dbp": 80, "rr": 16, "spo2": 98, "temp": 36.6 },
+    "initial": { "hr": 104, "sbp": 148, "dbp": 86, "rr": 18, "spo2": 97, "temp": 36.3 },
+    "worst":   { "hr": 118, "sbp": 160, "dbp": 92, "rr": 22, "spo2": 93, "temp": 36.2 }
+  },
+  "arrest": null,
+  "speech": { "impairedAbove": 0.4, "impairedText": "(Confused mumbling. She can’t give a clear answer. Try asking her daughter.)" },
+  "appearance": [
+    { "below": 0.2,  "text": "Alert and orientated, apologising for the fuss and asking for breakfast." },
+    { "below": 0.4,  "text": "Drowsy but rousable, answering simple questions." },
+    { "below": 0.85, "text": "Confused, pale and sweaty, slurred speech, not following commands consistently." },
+    { "below": 1.01, "text": "Unresponsive to voice, twitching: a generalised seizure is starting." }
+  ],
+  "history": [
+    { "id": "h_daughter", "source": "Daughter", "q": "Ask the daughter what happened", "keywords": ["daughter", "what happen", "found", "collateral", "family"], "a": "I found her like this at 7. She was vomiting yesterday and skipped dinner, but she still took her evening diabetes tablets." },
+    { "id": "h_meds", "source": "Daughter", "q": "What diabetes medicines does she take?", "keywords": ["medic", "tablet", "insulin", "drug", "taking"], "a": "Metformin and gliclazide 80 mg twice a day. No insulin." },
+    { "id": "h_pmh", "source": "Daughter", "q": "Any other medical problems?", "keywords": ["medical history", "problem", "condition", "kidney", "renal"], "a": "Diabetes for 15 years and blood pressure. Her doctor said her kidneys are a bit weak." },
+    { "id": "h_seizure", "source": "Daughter", "q": "Any fits, falls or head injury?", "keywords": ["fit", "seizure", "fall", "head", "injur"], "a": "No fits. She didn’t fall; I found her in bed." },
+    { "id": "h_alcohol", "source": "Daughter", "q": "Does she drink alcohol?", "keywords": ["alcohol", "drink"], "a": "She never drinks." },
+    { "id": "h_allergy", "source": "Daughter", "q": "Any allergies?", "keywords": ["allerg"], "a": "None that we know of." },
+    { "id": "h_patient", "q": "How are you feeling? Do you know where you are?", "keywords": ["how are you", "feel", "your name", "where are you", "orient"], "a": "I’m… fine… is it Tuesday? Who are you?", "variants": [ { "if": { "severityBelow": 0.2 }, "text": "Much better, thank you. I’m so embarrassed. And starving." } ] }
+  ],
+  "exam": [
+    { "id": "e_general", "label": "General", "text": "Pale, clammy and tremulous.", "variants": [ { "if": { "severityBelow": 0.2 }, "text": "Warm, dry skin. Alert." } ] },
+    { "id": "e_neuro", "label": "Neurological", "text": "GCS 12 (E3 V4 M5). Pupils equal and reactive. Moving all limbs, no focal weakness. Slurred speech.", "variants": [ { "if": { "severityBelow": 0.2 }, "text": "GCS 15. No focal neurology." } ] },
+    { "id": "e_cvs", "label": "Cardiovascular", "text": "Tachycardic, regular. Heart sounds normal." },
+    { "id": "e_resp", "label": "Respiratory", "text": "Chest clear." },
+    { "id": "e_abdo", "label": "Abdomen", "text": "Soft, mildly tender in the epigastrium." }
+  ],
+  "investigations": [
+    { "id": "i_cbg", "group": "Bedside", "label": "Capillary glucose", "time": 30, "text": "1.9 mmol/L (34 mg/dL).", "variants": [ { "if": { "severityBelow": 0.25 }, "text": "6.8 mmol/L (122 mg/dL)." }, { "if": { "severityBelow": 0.45 }, "text": "3.6 mmol/L (65 mg/dL)." } ] },
+    { "id": "i_vbg", "group": "Bedside", "label": "Venous blood gas", "time": 180, "text": "pH 7.39, lactate 1.6 mmol/L, K⁺ 4.3 mmol/L, glucose 2.0 mmol/L." },
+    { "id": "i_ecg", "group": "Bedside", "label": "12-lead ECG", "time": 120, "text": "Sinus tachycardia 104/min. No acute changes." },
+    { "id": "i_ue", "group": "Laboratory", "label": "Urea & electrolytes", "time": 900, "text": "Na⁺ 137, K⁺ 4.4 mmol/L, creatinine 152 µmol/L (1.7 mg/dL), eGFR 31." },
+    { "id": "i_ct", "group": "Imaging", "label": "CT head", "time": 1500, "text": "No acute intracranial abnormality." }
+  ],
+  "interventions": [
+    { "id": "glucose_iv", "group": "Medications", "label": "Glucose 10% 150 mL IV", "detail": "Over 10–15 minutes", "requires": ["iv_access"], "max": 3, "effects": { "severity": -0.5, "onset": 180, "progression": { "factor": 0, "duration": 1200 } }, "say": "Nurse: “150 mL of 10% glucose running.”" },
+    { "id": "glucose20_iv", "group": "Medications", "label": "Glucose 20% 75 mL IV", "detail": "Over 10–15 minutes", "requires": ["iv_access"], "max": 3, "effects": { "severity": -0.5, "onset": 180, "progression": { "factor": 0, "duration": 1200 } } },
+    { "id": "glucose50", "group": "Medications", "label": "Glucose 50% 50 mL IV bolus", "requires": ["iv_access"], "max": 2, "harm": { "points": 3, "why": "50% glucose is highly irritant and causes phlebitis and extravasation injury. 10% or 20% glucose is preferred." }, "effects": { "severity": -0.5, "onset": 120, "progression": { "factor": 0, "duration": 1200 } } },
+    { "id": "glucagon_im", "group": "Medications", "label": "Glucagon 1 mg IM", "once": true, "effects": { "severity": -0.3, "onset": 600, "progression": { "factor": 0, "duration": 900 } }, "feedback": "Useful when IV access is difficult, but less effective in sulfonylurea-induced hypoglycaemia and when glycogen stores are depleted by poor intake." },
+    { "id": "oral_glucose", "group": "Medications", "label": "Oral glucose 15–20 g", "detail": "Gel or sugary drink", "max": 2, "effects": { "severity": -0.4, "onset": 300, "progression": { "factor": 0, "duration": 900 }, "maxSeverity": 0.4, "blockedSay": "Nurse: “She’s too drowsy to swallow safely. That’s an aspiration risk.”" } },
+    { "id": "long_carb", "group": "Medications", "label": "Long-acting carbohydrate", "detail": "Toast or a meal once alert", "once": true, "effects": { "progression": { "factor": 0.3 }, "maxSeverity": 0.3, "blockedSay": "Nurse: “She isn’t alert enough to eat yet.”" } },
+    { "id": "dextrose_inf", "group": "Medications", "label": "Glucose 10% infusion", "detail": "With hourly capillary glucose", "requires": ["iv_access"], "once": true, "effects": { "progression": { "factor": 0 } } },
+    { "id": "insulin", "group": "Medications", "label": "Soluble insulin 6 units SC", "once": true, "harm": { "points": 25, "why": "Insulin in a hypoglycaemic patient deepens the hypoglycaemia and risks seizures, brain injury and death." }, "effects": { "severity": 0.3, "onset": 300 } }
+  ],
+  "diagnoses": [
+    { "id": "dx_hypo", "label": "Sulfonylurea-induced hypoglycaemia" },
+    { "id": "dx_stroke", "label": "Acute ischaemic stroke" },
+    { "id": "dx_sepsis", "label": "Sepsis with delirium" },
+    { "id": "dx_dka", "label": "Diabetic ketoacidosis" },
+    { "id": "dx_hhs", "label": "Hyperosmolar hyperglycaemic state" },
+    { "id": "dx_postictal", "label": "Post-ictal state after an unwitnessed seizure" }
+  ],
+  "dispositions": [
+    { "id": "disp_admit", "label": "Admit for glucose infusion and glucose monitoring for at least 24 h" },
+    { "id": "disp_home", "label": "Discharge once glucose is normal and she has eaten" },
+    { "id": "disp_icu", "label": "Admit to ICU" }
+  ],
+  "scoring": {
+    "critical": [
+      { "id": "c_cbg", "label": "Capillary glucose checked", "anyOf": ["i_cbg"], "within": 180, "points": 25, "why": "Check glucose in every patient with altered consciousness: Don’t Ever Forget Glucose." },
+      { "id": "c_glu", "label": "Parenteral glucose or glucagon given", "anyOf": ["glucose_iv", "glucose20_iv", "glucose50", "glucagon_im"], "within": 420, "points": 30, "why": "Severe hypoglycaemia with impaired consciousness needs IV glucose (or IM glucagon if there is no IV access)." }
+    ],
+    "recommended": [
+      { "id": "r_recheck", "label": "Rechecked glucose after treatment", "anyOf": ["i_cbg"], "count": 2, "points": 8 },
+      { "id": "r_carb", "label": "Long-acting carbohydrate or glucose infusion", "anyOf": ["long_carb", "dextrose_inf"], "points": 6 },
+      { "id": "r_collateral", "label": "Took a collateral history", "anyOf": ["h_daughter"], "points": 5 },
+      { "id": "r_meds", "label": "Identified the sulfonylurea", "anyOf": ["h_meds"], "points": 5 },
+      { "id": "r_neuro", "label": "Examined neurologically", "anyOf": ["e_neuro"], "points": 3 },
+      { "id": "r_iv", "label": "IV access obtained", "anyOf": ["iv_access"], "points": 2 }
+    ],
+    "penalties": [
+      { "ifAction": "i_ct", "before": ["i_cbg"], "points": 10, "why": "CT head was requested before checking glucose. Always check glucose first in altered consciousness." },
+      { "ifAction": "oral_glucose", "when": { "severity": { "gt": 0.4 } }, "points": 8, "why": "Oral glucose was attempted in a patient too drowsy to swallow safely." }
+    ],
+    "diagnosis": { "correct": "dx_hypo", "points": 15 },
+    "disposition": { "correct": "disp_admit", "points": 10 }
+  },
+  "teaching": [
+    "Check capillary glucose in every patient with altered consciousness, seizure or focal neurology.",
+    "Hypoglycaemia is glucose < 4.0 mmol/L (72 mg/dL). If the patient cannot swallow safely, give IV glucose: 150–200 mL of 10% or 75–100 mL of 20% over about 15 minutes. Use IM glucagon 1 mg if there is no IV access.",
+    "Recheck glucose 10–15 minutes after treatment and repeat treatment if it is still low.",
+    "Once alert, give long-acting carbohydrate.",
+    "Sulfonylureas (for example gliclazide), especially with kidney impairment, cause prolonged and recurrent hypoglycaemia: admit, run a glucose infusion and monitor for at least 24 hours.",
+    "Review the diabetes regimen before discharge, including sick-day rules."
+  ],
+  "references": [
+    "Joint British Diabetes Societies for Inpatient Care. The hospital management of hypoglycaemia in adults with diabetes mellitus (current revision)."
+  ]
+}

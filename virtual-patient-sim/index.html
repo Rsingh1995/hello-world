@@ -1,0 +1,1675 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Resus Bay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: case library of cards → three-zone resus bay (monitor · work tabs · event log) → scored debrief */
+:root{
+  --bg:#EDF1EF; --surface:#FFFFFF; --surface-2:#F4F7F5; --line:#D3DCD8; --line-strong:#B5C3BD;
+  --fg:#12201B; --muted:#55665F; --accent:#0B6B5A; --accent-ink:#FFFFFF; --accent-soft:#D9EEE8;
+  --good:#1D7A3B; --good-soft:#DFF1E5; --warn:#955800; --warn-soft:#FBEBD2; --crit:#B3261E; --crit-soft:#F8DEDA; --on-crit:#FFFFFF;
+  /* the bedside monitor is black in both themes, like the real thing */
+  --mon-bg:#030605; --mon-line:#12211B; --mon-ecg:#3BEA6E; --mon-spo2:#40D9F5; --mon-nibp:#F4F4F4; --mon-rr:#F7D84A; --mon-temp:#E79AF5; --mon-label:#8CA098; --mon-alarm:#E3261C; --mon-alarm-ink:#FFFFFF;
+  --font-display:"Barlow Condensed","Arial Narrow","Roboto Condensed",sans-serif;
+  --font-ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --radius:8px; --radius-sm:5px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0B1210; --surface:#121C19; --surface-2:#17231F; --line:#25342E; --line-strong:#3A4D45;
+    --fg:#E1EAE6; --muted:#93A59D; --accent:#45C2A6; --accent-ink:#03110D; --accent-soft:#12372E;
+    --good:#5CC47C; --good-soft:#14301D; --warn:#E6A94F; --warn-soft:#382812; --crit:#FF7B70; --crit-soft:#3E1714; --on-crit:#1A0503;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0B1210; --surface:#121C19; --surface-2:#17231F; --line:#25342E; --line-strong:#3A4D45;
+  --fg:#E1EAE6; --muted:#93A59D; --accent:#45C2A6; --accent-ink:#03110D; --accent-soft:#12372E;
+  --good:#5CC47C; --good-soft:#14301D; --warn:#E6A94F; --warn-soft:#382812; --crit:#FF7B70; --crit-soft:#3E1714; --on-crit:#1A0503;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 var(--font-ui)}
+h1,h2,h3,h4{margin:0;line-height:1.1;text-wrap:balance}
+h1,h2,h3{font-family:var(--font-display);font-weight:600;letter-spacing:.005em}
+h1{font-size:clamp(2.1rem,4.6vw,3.2rem)}
+h2{font-size:1.6rem}
+h3{font-size:1.2rem}
+p{margin:0}
+.wrap{max-width:1480px;margin:0 auto;padding-inline:max(16px,2vw);padding-block:0 40px}
+.eyebrow,.lbl{font:600 .72rem/1.2 var(--font-ui);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)}
+.mono,time{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:38px;padding:7px 14px;border:1px solid var(--line-strong);border-radius:var(--radius-sm);background:var(--surface);color:var(--fg);font-weight:500;font-size:.9rem;cursor:pointer;text-decoration:none;white-space:nowrap}
+.btn:hover{background:var(--surface-2)}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn-primary:hover{background:var(--accent);filter:brightness(1.07)}
+.btn-danger{border-color:var(--crit);color:var(--crit)}
+.btn-danger.confirm{background:var(--crit);color:var(--on-crit)}
+.btn:focus-visible,.act:focus-visible,.tab:focus-visible,.qchip:focus-visible,.seg button:focus-visible,input:focus-visible,summary:focus-visible,.opt:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+
+/* masthead */
+.masthead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:14px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;font:700 1.5rem/1 var(--font-display);letter-spacing:.03em;color:var(--fg);text-decoration:none;background:none;border:0;padding:0;cursor:pointer}
+.brand svg{width:30px;height:20px;flex:none}
+.brand small{font:500 .78rem var(--font-ui);letter-spacing:.02em;color:var(--muted);margin-left:4px}
+@media (max-width:520px){.brand small{display:none}}
+
+/* library */
+.intro{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:32px;align-items:center;padding-block:32px 20px}
+@media (max-width:860px){.intro{grid-template-columns:minmax(0,1fr);gap:20px}}
+.intro .lede{max-width:60ch;color:var(--muted);font-size:1.03rem;margin-top:12px}
+.steps{display:flex;flex-wrap:wrap;gap:8px 20px;list-style:none;padding:0;margin:18px 0 0;counter-reset:s}
+.steps li{counter-increment:s;display:flex;gap:8px;align-items:center;font-size:.9rem}
+.steps li::before{content:counter(s);font:600 .72rem var(--font-mono);color:var(--accent);border:1px solid var(--accent);border-radius:50%;width:21px;height:21px;display:inline-grid;place-items:center;flex:none}
+.demo{background:var(--mon-bg);border-radius:var(--radius);padding:12px 14px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center;color:var(--mon-ecg)}
+.demo .strip{position:relative;height:96px}
+.demo canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.demo .val{font:600 3.2rem/1 var(--font-display);font-variant-numeric:tabular-nums}
+.demo .lbl{color:var(--mon-ecg)}
+.demo-cap{font-size:.8rem;color:var(--muted);margin-top:8px}
+.lib-head{display:flex;flex-wrap:wrap;gap:10px;align-items:end;justify-content:space-between;margin:18px 0 12px}
+.case-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,310px),1fr));gap:14px}
+.case{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:10px}
+.case h3{font-size:1.32rem}
+.case .who{font-size:.88rem;color:var(--muted)}
+.case .foot{margin-top:auto;display:flex;justify-content:space-between;align-items:center;gap:8px;padding-top:4px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:.74rem;padding:2px 8px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.chip.src{border-style:dashed}
+.msg{padding:10px 12px;border-radius:var(--radius-sm);font-size:.9rem;margin-bottom:12px}
+.msg.ok{background:var(--good-soft);color:var(--good)}
+.msg.err{background:var(--crit-soft);color:var(--crit)}
+.table-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.07em}
+td.num{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.empty{padding:18px;border:1px dashed var(--line-strong);border-radius:var(--radius);color:var(--muted);font-size:.92rem}
+.section-title{margin:30px 0 12px}
+.disclaimer{margin-top:28px;font-size:.82rem;color:var(--muted);max-width:90ch}
+
+/* status pills */
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:600;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+.pill.good{background:var(--good-soft);color:var(--good)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.crit{background:var(--crit-soft);color:var(--crit)}
+.pill.neutral{background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
+
+/* sim bar */
+.simbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;justify-content:space-between;padding-block:10px;border-bottom:1px solid var(--line)}
+.pt{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;min-width:0}
+.pt strong{font:600 1.35rem/1.1 var(--font-display)}
+.pt .complaint{color:var(--muted);font-size:.9rem}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.clock{display:flex;flex-direction:column;align-items:flex-end;margin-right:4px}
+.clock span:last-child{font:500 1.35rem/1 var(--font-mono);font-variant-numeric:tabular-nums}
+.seg{display:inline-flex;border:1px solid var(--line-strong);border-radius:var(--radius-sm);overflow:hidden}
+.seg button{border:0;background:var(--surface);padding:0 10px;min-height:36px;cursor:pointer;font:500 .85rem var(--font-mono)}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+
+.arrest{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;background:var(--crit);color:var(--on-crit);border-radius:var(--radius);padding:10px 14px;margin-top:12px}
+.arrest strong{font:700 1.3rem/1 var(--font-display);letter-spacing:.03em;text-transform:uppercase}
+.arrest .spacer{flex:1}
+.arrest .btn{background:var(--surface);color:var(--fg);border-color:transparent}
+
+/* bay */
+.bay{display:grid;gap:14px;padding-block:14px;grid-template-columns:minmax(0,1.1fr) minmax(0,1.25fr) minmax(0,.72fr);grid-template-areas:"mon work log";align-items:start}
+.col-mon{grid-area:mon;min-width:0;container-type:inline-size}
+.col-work{grid-area:work;min-width:0}
+.col-log{grid-area:log;min-width:0}
+@media (max-width:1240px){.bay{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);grid-template-areas:"mon mon" "work log"}}
+@media (max-width:780px){.bay{grid-template-columns:minmax(0,1fr);grid-template-areas:"mon" "work" "log"}}
+.mon-stack{display:flex;flex-direction:column;gap:12px}
+@container (min-width:900px){.mon-stack{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(0,1fr);align-items:start}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+
+/* monitor */
+.monitor-wrap{container-type:inline-size}
+.monitor{position:relative;background:var(--mon-bg);border-radius:var(--radius);padding:10px;display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:10px;color:var(--mon-label)}
+.mon-waves{position:relative;min-height:246px}
+.mon-waves canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.wave-lbl{position:absolute;left:4px;font:600 .68rem var(--font-mono);letter-spacing:.06em;pointer-events:none}
+.mon-nums{display:grid;gap:6px;align-content:start}
+.num{padding:4px 8px;border-radius:4px;min-width:0}
+.num .lbl{color:inherit;opacity:.9;display:flex;justify-content:space-between;gap:6px}
+.num .val{display:block;font:600 2.7rem/1 var(--font-display);font-variant-numeric:tabular-nums;white-space:nowrap}
+.num .sub{display:block;font:500 .72rem var(--font-mono);opacity:.85}
+.num.hr{color:var(--mon-ecg)}
+.num.spo2{color:var(--mon-spo2)}
+.num.nibp{color:var(--mon-nibp)}
+.num.nibp .val{font-size:1.95rem}
+.num.rr{color:var(--mon-rr)}
+.num.temp{color:var(--mon-temp)}
+.num.temp .val{font-size:1.6rem}
+.num.alarm{background:var(--mon-alarm);color:var(--mon-alarm-ink);animation:blink 1s steps(2,start) infinite}
+@keyframes blink{50%{background:transparent}}
+.nibp-btn{margin-top:4px;background:transparent;border:1px solid var(--mon-label);color:var(--mon-nibp);border-radius:4px;font:500 .72rem var(--font-mono);padding:3px 6px;cursor:pointer}
+.mon-overlay{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:12px;text-align:center;color:var(--mon-nibp);background:rgb(3 6 5 / .86);border-radius:var(--radius);padding:16px}
+.mon-overlay p{font:500 .95rem var(--font-mono);letter-spacing:.04em}
+.mon-overlay .btn{background:var(--mon-ecg);border-color:var(--mon-ecg);color:var(--mon-bg)}
+@container (max-width:480px){
+  .monitor{grid-template-columns:minmax(0,1fr)}
+  .mon-waves{min-height:210px}
+  .mon-nums{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .num .val{font-size:2.1rem}
+  .num.nibp .val{font-size:1.45rem}
+}
+@media (prefers-reduced-motion:reduce){.num.alarm{animation:none}}
+
+/* bedside card */
+.bedside{padding:14px;display:flex;flex-direction:column;gap:12px}
+.appearance p{margin-top:4px;font-size:1.02rem}
+details summary{cursor:pointer;font-weight:600;font-size:.92rem}
+details p{margin-top:8px;font-size:.92rem}
+dl.tv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 12px;margin:10px 0 0}
+dl.tv div{display:flex;flex-direction:column;min-width:0}
+dl.tv dt{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+dl.tv dd{margin:0;font:500 .92rem var(--font-mono)}
+
+/* work tabs */
+.tabs{display:flex;overflow-x:auto;border-bottom:1px solid var(--line)}
+.tab{flex:1 0 auto;border:0;background:none;padding:12px 14px;cursor:pointer;font-weight:500;font-size:.92rem;color:var(--muted);border-bottom:2px solid transparent;position:relative}
+.tab[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--accent)}
+.tab .dot{position:absolute;top:8px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.tabpanel{padding:14px;display:flex;flex-direction:column;gap:16px}
+.group h4{font:600 .72rem var(--font-ui);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 7px}
+.group.hot{padding:10px;border:2px solid var(--crit);border-radius:var(--radius-sm)}
+.group.hot h4{color:var(--crit)}
+.acts{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,235px),1fr));gap:6px}
+.act{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;text-align:left;padding:8px 10px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--surface-2);cursor:pointer;min-height:44px}
+.act:hover{border-color:var(--accent)}
+.act .t{font-weight:500;font-size:.9rem;line-height:1.3}
+.act .d{display:block;font-weight:400;font-size:.77rem;color:var(--muted);line-height:1.3;margin-top:2px}
+.act .n{font:500 .72rem var(--font-mono);color:var(--accent);white-space:nowrap;padding-top:2px}
+.act.done{border-color:var(--accent);background:var(--accent-soft)}
+.transcript{display:flex;flex-direction:column;gap:8px;max-height:330px;overflow-y:auto;padding:2px}
+.bubble{max-width:88%;padding:8px 11px;border-radius:10px;font-size:.92rem}
+.bubble .who{display:block;font-size:.66rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;opacity:.8;margin-bottom:2px}
+.bubble.you{align-self:flex-end;background:var(--accent);color:var(--accent-ink);border-bottom-right-radius:3px}
+.bubble.them{align-self:flex-start;background:var(--surface-2);border:1px solid var(--line);border-bottom-left-radius:3px}
+.askform{display:flex;gap:8px}
+.askform input{flex:1;min-width:0;min-height:40px;padding:8px 11px;border:1px solid var(--line-strong);border-radius:var(--radius-sm);background:var(--surface);color:var(--fg);font:inherit}
+.qchips{display:flex;flex-wrap:wrap;gap:6px}
+.qchip{font-size:.82rem;padding:5px 10px;border-radius:999px;border:1px solid var(--line-strong);background:var(--surface);cursor:pointer;text-align:left}
+.qchip.asked{background:var(--surface-2);color:var(--muted);border-style:dashed}
+.feed{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.feed li{padding:9px 11px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--surface-2);font-size:.92rem}
+.feed .meta{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;font-size:.78rem;color:var(--muted);margin-bottom:3px}
+.feed .meta b{color:var(--fg);font-size:.88rem;font-weight:600}
+.bar{height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin-top:6px}
+.bar>i{display:block;height:100%;background:var(--accent)}
+fieldset{border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px 12px;margin:0;min-width:0}
+legend{font-weight:600;padding:0 4px}
+.opt{display:flex;gap:9px;align-items:flex-start;padding:6px 4px;cursor:pointer;font-size:.92rem;border-radius:4px}
+.opt input{margin-top:4px;accent-color:var(--accent);flex:none}
+.hint{font-size:.85rem;color:var(--muted)}
+
+/* event log */
+.col-log .panel{padding:12px 14px}
+.log{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;max-height:660px;overflow-y:auto;font-size:.86rem}
+.log li{display:grid;grid-template-columns:42px minmax(0,1fr);gap:8px;padding:6px 0;border-bottom:1px dashed var(--line)}
+.log time{color:var(--muted);font-size:.76rem;padding-top:1px}
+.log li.alert .txt{color:var(--crit);font-weight:600}
+.log li.result .txt b{color:var(--accent)}
+.log li.speech .txt,.log li.system .txt,.log li.observe .txt{color:var(--muted)}
+
+/* debrief */
+.debrief{display:flex;flex-direction:column;gap:16px;padding-block:22px}
+.db-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:end;padding-bottom:16px;border-bottom:1px solid var(--line)}
+@media (max-width:640px){.db-head{grid-template-columns:minmax(0,1fr)}}
+.db-head .sub{color:var(--muted);margin-top:6px}
+.scorebox{text-align:right}
+@media (max-width:640px){.scorebox{text-align:left}}
+.score{font:700 4.4rem/.9 var(--font-display);font-variant-numeric:tabular-nums}
+.db-actions{display:flex;flex-wrap:wrap;gap:8px}
+.db-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:960px){.db-grid{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.checks{list-style:none;margin:0;padding:0}
+.checks li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding:9px 0;border-bottom:1px solid var(--line)}
+.checks li:last-child{border-bottom:0}
+.checks .why{grid-column:1/-1;font-size:.84rem;color:var(--muted)}
+.checks .pts{font:500 .8rem var(--font-mono);color:var(--muted);text-align:right}
+.kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 14px;font-size:.92rem}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0}
+.prose ul{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:6px}
+.prose li{max-width:75ch}
+.chart{margin:0}
+.chart figcaption{display:flex;justify-content:space-between;gap:8px;font-size:.84rem;margin-bottom:2px}
+.chart figcaption output{font-family:var(--font-mono);color:var(--muted)}
+.chart svg{width:100%;height:auto;display:block;touch-action:pan-y}
+.chart .grid line{stroke:var(--line);stroke-width:1}
+.chart text{fill:var(--muted);font:11px var(--font-mono)}
+.chart .series{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.chart .end{fill:var(--accent);stroke:var(--surface);stroke-width:2}
+.chart .band{fill:var(--crit-soft)}
+.chart .mk line{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 3}
+.chart .mk circle{fill:var(--surface);stroke:var(--fg);stroke-width:1}
+.chart .mk text{fill:var(--fg);font-size:10px;text-anchor:middle;dominant-baseline:central}
+.chart .hover line{stroke:var(--fg);stroke-width:1}
+.chart .hover circle{fill:var(--accent);stroke:var(--surface);stroke-width:2}
+.marks{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:3px;font-size:.84rem}
+.marks b{display:inline-grid;place-items:center;width:18px;height:18px;border:1px solid var(--fg);border-radius:50%;font:500 .66rem var(--font-mono);margin-right:6px}
+.copybox{width:100%;min-height:160px;font:.8rem/1.4 var(--font-mono);background:var(--surface-2);color:var(--fg);border:1px solid var(--line);border-radius:var(--radius-sm);padding:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <button class="brand" id="brandHome" type="button" aria-label="Resus Bay — case library">
+      <svg viewBox="0 0 30 20" aria-hidden="true"><path d="M0 13h8l2-3 2 3h2l2-12 3 18 2-6h9" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>
+      Resus Bay<small>virtual patient simulator</small>
+    </button>
+    <span class="pill neutral">Prototype</span>
+  </header>
+
+  <!-- ============ LIBRARY ============ -->
+  <section id="view-library">
+    <div class="intro">
+      <div>
+        <p class="eyebrow">Case-based simulation for clinical reasoning</p>
+        <h1>The patient keeps getting worse until you act.</h1>
+        <p class="lede">Each case runs in real time. Take a history, examine, order tests and treat. The monitor responds to what you do and what you don’t do. At the end you get a scored debrief with the timeline of your decisions and teaching points.</p>
+        <ol class="steps">
+          <li>Assess</li><li>Investigate</li><li>Treat</li><li>Diagnose &amp; dispose</li><li>Debrief</li>
+        </ol>
+      </div>
+      <div>
+        <div class="demo" aria-label="Example ECG trace, sinus rhythm at 72 beats per minute">
+          <div class="strip"><canvas id="demoCanvas"></canvas></div>
+          <div><span class="lbl">HR</span><span class="val" id="demoHR">72</span></div>
+        </div>
+        <p class="demo-cap">Lead II, sinus rhythm. In a case the trace, pulse oximetry, respiration and blood pressure follow the patient’s physiology.</p>
+      </div>
+    </div>
+
+    <div class="lib-head">
+      <h2>Cases</h2>
+      <div><label class="btn" for="importFile">Import case (.json)</label><input type="file" id="importFile" accept=".json,application/json" hidden></div>
+    </div>
+    <p id="importMsg" class="msg" hidden></p>
+    <div id="caseGrid" class="case-grid"></div>
+
+    <h2 class="section-title">Your recent attempts</h2>
+    <div id="attempts"></div>
+
+    <p class="disclaimer">Educational prototype. The cases are illustrative, written to current guidelines as far as possible, and must be reviewed by faculty before teaching use. Doses and pathways vary by country and institution. Not for clinical decision-making.</p>
+  </section>
+
+  <!-- ============ SIMULATION ============ -->
+  <section id="view-sim" hidden>
+    <div class="simbar">
+      <div class="pt"><strong id="ptName"></strong><span id="ptMeta" class="mono"></span><span id="ptComplaint" class="complaint"></span></div>
+      <div class="controls">
+        <div class="clock"><span class="lbl">Sim time</span><span id="clock">00:00</span></div>
+        <div class="seg" role="group" aria-label="Simulation speed" id="speedSeg">
+          <button type="button" data-speed="1" aria-pressed="true">1×</button><button type="button" data-speed="2" aria-pressed="false">2×</button><button type="button" data-speed="4" aria-pressed="false">4×</button><button type="button" data-speed="8" aria-pressed="false">8×</button>
+        </div>
+        <button class="btn" id="btnPause" type="button">Pause</button>
+        <button class="btn" id="btnSound" type="button" aria-pressed="false">Sound off</button>
+        <button class="btn btn-danger" id="btnEnd" type="button">End case</button>
+      </div>
+    </div>
+
+    <div id="arrestBanner" class="arrest" hidden role="alert">
+      <strong>Cardiac arrest</strong><span class="mono" id="arrestInfo"></span><span class="spacer"></span>
+      <button class="btn" type="button" data-act="cpr">Start CPR</button>
+      <button class="btn" type="button" data-act="iv_access">IV/IO access</button>
+      <button class="btn" type="button" data-act="rhythm_check">Rhythm check</button>
+      <button class="btn" type="button" data-act="defib">Shock</button>
+      <button class="btn" type="button" data-act="adr_1mg_iv">Adrenaline 1 mg</button>
+    </div>
+
+    <div class="bay">
+      <div class="col-mon">
+        <div class="mon-stack">
+          <div class="monitor-wrap">
+            <div class="monitor" id="monitor">
+              <div class="mon-waves">
+                <canvas id="monCanvas"></canvas>
+                <span class="wave-lbl" style="top:2px;color:var(--mon-ecg)">II</span>
+                <span class="wave-lbl" style="top:33.3%;color:var(--mon-spo2)">PLETH</span>
+                <span class="wave-lbl" style="top:66.6%;color:var(--mon-rr)">RESP</span>
+              </div>
+              <div class="mon-nums">
+                <div class="num hr" id="nHR"><span class="lbl"><span>HR</span><span>bpm</span></span><span class="val" id="vHR">--</span></div>
+                <div class="num spo2" id="nSPO2"><span class="lbl"><span>SpO₂</span><span>%</span></span><span class="val" id="vSPO2">--</span></div>
+                <div class="num nibp" id="nBP"><span class="lbl"><span>NIBP</span><span>mmHg</span></span><span class="val" id="vBP">--/--</span><span class="sub" id="vBPsub">MAP --</span><button class="nibp-btn" id="btnNibp" type="button">Cycle NIBP</button></div>
+                <div class="num rr" id="nRR"><span class="lbl"><span>RR</span><span>/min</span></span><span class="val" id="vRR">--</span></div>
+                <div class="num temp" id="nT"><span class="lbl"><span>Temp</span><span>°C</span></span><span class="val" id="vT">--</span></div>
+              </div>
+              <div class="mon-overlay" id="monOff"><p>NO MONITORING ATTACHED</p><button class="btn" type="button" data-act="monitor">Attach monitoring</button></div>
+              <div class="mon-overlay" id="monPaused" hidden><p>SIMULATION PAUSED</p><button class="btn" type="button" id="btnResume">Resume</button></div>
+            </div>
+          </div>
+          <div class="panel bedside">
+            <div class="appearance"><span class="lbl">At the bedside</span><p id="appearance"></p></div>
+            <details open><summary>Triage note</summary><p id="triage"></p><dl class="tv" id="triageVitals"></dl></details>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-work">
+        <div class="panel">
+          <div class="tabs" role="tablist" aria-label="Clinical actions">
+            <button class="tab" role="tab" type="button" id="tab-history" aria-controls="panel-history" aria-selected="true">History</button>
+            <button class="tab" role="tab" type="button" id="tab-exam" aria-controls="panel-exam" aria-selected="false">Examine</button>
+            <button class="tab" role="tab" type="button" id="tab-investigate" aria-controls="panel-investigate" aria-selected="false">Investigate</button>
+            <button class="tab" role="tab" type="button" id="tab-treat" aria-controls="panel-treat" aria-selected="false">Treat</button>
+            <button class="tab" role="tab" type="button" id="tab-decide" aria-controls="panel-decide" aria-selected="false">Decide</button>
+          </div>
+          <div class="tabpanel" role="tabpanel" id="panel-history" aria-labelledby="tab-history"></div>
+          <div class="tabpanel" role="tabpanel" id="panel-exam" aria-labelledby="tab-exam" hidden></div>
+          <div class="tabpanel" role="tabpanel" id="panel-investigate" aria-labelledby="tab-investigate" hidden></div>
+          <div class="tabpanel" role="tabpanel" id="panel-treat" aria-labelledby="tab-treat" hidden></div>
+          <div class="tabpanel" role="tabpanel" id="panel-decide" aria-labelledby="tab-decide" hidden></div>
+        </div>
+      </div>
+
+      <aside class="col-log">
+        <div class="panel">
+          <h3>Event log</h3>
+          <ol class="log" id="log" aria-live="polite"></ol>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============ DEBRIEF ============ -->
+  <section id="view-debrief" hidden></section>
+</div>
+
+<script>
+/* ======================================================================
+   CASE LIBRARY
+   A case is plain data (the same shape as the JSON files in cases/).
+   See README.md for the full format.
+   ====================================================================== */
+const BUILTIN_CASES = [
+{
+  id:'anaphylaxis-food', title:'Anaphylaxis (food-triggered)',
+  card:{complaint:'Lip swelling, rash and breathlessness 15 minutes after lunch', discipline:'Emergency medicine', setting:'Emergency department', difficulty:'Core', minutes:10},
+  patient:{name:'Arjun Mehta', age:24, sex:'M', weight:70},
+  triage:{note:'Arrived by taxi with a friend. Ate a cashew curry at a restaurant 15 minutes ago. Itchy rash, swollen lips, “throat feels tight”, wheezy and lightheaded.', vitals:{HR:'128', BP:'86/50', RR:'28', SpO2:'91% air', Temp:'37.1', GCS:'15'}},
+  physiology:{
+    start:0.45, rate:0.07, recovery:0.06, rhythm:{type:'sinus'},
+    best:{hr:84, sbp:122, dbp:76, rr:16, spo2:98, temp:37.0},
+    initial:{hr:128, sbp:86, dbp:50, rr:28, spo2:91, temp:37.1},
+    worst:{hr:152, sbp:58, dbp:30, rr:38, spo2:78, temp:37.1}
+  },
+  arrest:{rhythm:'pea', requireAdrenaline:true, reversibleBy:['fluid_bolus'], roscSeverity:0.8},
+  ivAdrenalineHarm:'Never give 1 mg of 1 mg/mL adrenaline as an IV bolus to a patient with a pulse: it can cause severe hypertension, VT/VF and myocardial ischaemia. In anaphylaxis IV adrenaline is given only as a titrated infusion by experienced staff.',
+  speech:{impairedAbove:0.8, impairedText:'(Hoarse and gasping. He can only nod or shake his head.)'},
+  appearance:[
+    {below:0.15, text:'Settled. Talking in full sentences. Hives fading.'},
+    {below:0.35, text:'Anxious but improving. Voice clearer, a little wheeze.'},
+    {below:0.6, text:'Flushed with widespread hives and swollen lips. Audible wheeze, speaking in short phrases.'},
+    {below:0.85, text:'Pale and clammy. Hoarse voice, stridor, getting drowsy.'},
+    {below:1.01, text:'Grey, barely rousable, gasping.'}
+  ],
+  history:[
+    {id:'h_onset', q:'What happened?', keywords:['what happen','what’s happen','what\'s happen','how did','start','began','onset','brings you','came in'], a:'I was eating lunch… a cashew curry. About 15 minutes later my lips started tingling, then this rash, and now my throat feels tight. I feel dizzy.'},
+    {id:'h_allergy', q:'Do you have any allergies?', keywords:['allerg','react'], a:'I’m allergic to peanuts. I had hives once as a kid. I didn’t know cashews could do this.'},
+    {id:'h_pen', q:'Do you carry an adrenaline auto-injector?', keywords:['epipen','epi-pen','auto-inject','autoinject','injector','pen'], a:'I was given one years ago. It expired and I stopped carrying it.'},
+    {id:'h_breath', q:'Is your breathing or swallowing affected?', keywords:['breath','throat','swallow','wheez','voice','chest'], a:'My throat’s tight and it’s hard to swallow. My chest feels wheezy.'},
+    {id:'h_asthma', q:'Do you have asthma?', keywords:['asthma','inhaler','lung'], a:'Mild asthma. I use a blue inhaler maybe once a month.'},
+    {id:'h_meds', q:'Do you take any medicines?', keywords:['medic','tablet','drug','taking','beta'], a:'Just the salbutamol inhaler. Nothing else.'},
+    {id:'h_gi', q:'Any vomiting, tummy pain or fainting?', keywords:['vomit','nause','abdom','stomach','tummy','faint','dizz','collapse'], a:'I feel sick and crampy. I nearly fainted walking in.'},
+    {id:'h_social', q:'Any alcohol, exercise or smoking today?', keywords:['alcohol','drink','beer','smok','exercis'], a:'I had one beer with lunch. I don’t smoke.'},
+    {id:'h_friend', q:'Ask the friend what they saw', source:'Friend', keywords:['friend','saw','witness','collateral'], a:'His lips swelled up really fast and he kept coughing. In the taxi he looked like he was going to pass out.'}
+  ],
+  exam:[
+    {id:'e_airway', label:'Airway', text:'Lips and tongue swollen. Hoarse voice, soft inspiratory stridor. Managing secretions.', variants:[{if:{severityBelow:0.25}, text:'Lip swelling reducing. No stridor. Voice normal.'},{if:{severityAbove:0.85}, text:'Marked tongue swelling, loud stridor, pooling secretions. The airway is at risk.'}]},
+    {id:'e_breathing', label:'Breathing', text:'Widespread expiratory wheeze with reduced air entry at the bases. Using accessory muscles.', variants:[{if:{severityBelow:0.25}, text:'Occasional wheeze only. Good air entry bilaterally.'}]},
+    {id:'e_circ', label:'Circulation', text:'Weak, rapid radial pulse. Capillary refill 4 s. Cool peripheries.', variants:[{if:{severityBelow:0.25}, text:'Warm peripheries, capillary refill under 2 s, good-volume pulse.'}]},
+    {id:'e_disability', label:'Disability', text:'GCS 15, anxious. Pupils equal and reactive.', variants:[{if:{severityAbove:0.8}, text:'GCS 12 (E3 V4 M5). Drowsy.'}]},
+    {id:'e_skin', label:'Exposure / skin', text:'Widespread raised urticarial wheals on the trunk and arms, facial flushing. No sting marks.'},
+    {id:'e_abdo', label:'Abdomen', text:'Soft, mild diffuse tenderness, no guarding.'}
+  ],
+  investigations:[
+    {id:'i_cbg', group:'Bedside', label:'Capillary glucose', time:60, text:'6.2 mmol/L (112 mg/dL).'},
+    {id:'i_vbg', group:'Bedside', label:'Venous blood gas', time:180, text:'pH 7.31, pCO₂ 44 mmHg, HCO₃⁻ 20 mmol/L, lactate 3.8 mmol/L, K⁺ 3.9 mmol/L.', variants:[{if:{severityBelow:0.25}, text:'pH 7.38, pCO₂ 40 mmHg, HCO₃⁻ 23 mmol/L, lactate 1.9 mmol/L, K⁺ 3.8 mmol/L.'}]},
+    {id:'i_ecg', group:'Bedside', label:'12-lead ECG', time:90, text:'Sinus tachycardia. Normal axis. No ST changes.'},
+    {id:'i_tryptase', group:'Laboratory', label:'Mast cell tryptase (timed)', time:60, text:'Sample taken and labelled with the time. Result in 24–48 h. Repeat at 1–2 h and at ≥ 24 h or at allergy follow-up.'},
+    {id:'i_fbc', group:'Laboratory', label:'Full blood count', time:900, text:'Hb 15.2 g/dL, WCC 11.4 ×10⁹/L, platelets 262 ×10⁹/L.'},
+    {id:'i_ue', group:'Laboratory', label:'Urea & electrolytes', time:900, text:'Na⁺ 139, K⁺ 3.9 mmol/L, creatinine 84 µmol/L (0.95 mg/dL).'},
+    {id:'i_cxr', group:'Imaging', label:'Chest X-ray (portable)', time:600, text:'Mild hyperinflation. No consolidation, no pneumothorax.'}
+  ],
+  interventions:[
+    {id:'call_help', group:'Help & referral', label:'Call for help', detail:'Senior / resus team', once:true, say:'Nurse: “Resus team called. The senior is on the way.”'},
+    {id:'call_anaes', group:'Help & referral', label:'Call anaesthetist', detail:'Airway at risk', once:true, say:'Nurse: “Anaesthetist is coming, about 5 minutes.”'},
+    {id:'position', group:'Airway & breathing', label:'Lie flat, legs raised', detail:'Sit up only if breathing is worse lying flat', once:true, effects:{vitals:{sbp:6, dbp:3}, onset:30}, say:'Nurse: “Laid flat with his legs up.”'},
+    {id:'o2', group:'Airway & breathing', label:'High-flow oxygen', detail:'15 L/min via non-rebreather mask', once:true, effects:{vitals:{spo2:5}, onset:60}, say:'Nurse: “Non-rebreather on at 15 litres.”'},
+    {id:'salbutamol', group:'Airway & breathing', label:'Salbutamol 5 mg nebulised', detail:'For persisting bronchospasm', max:3, effects:{vitals:{spo2:2, rr:-3}, onset:300, duration:1200}, feedback:'Bronchodilators help persisting wheeze but do not replace IM adrenaline.'},
+    {id:'adr_im', group:'Medications', label:'Adrenaline 0.5 mg IM', detail:'0.5 mL of 1 mg/mL (1:1000), anterolateral thigh. Repeat after 5 min if no better', max:4, effects:{severity:-0.3, onset:120, progression:{factor:0, duration:300}}, say:'Nurse: “Adrenaline 0.5 mg IM given into the thigh.”'},
+    {id:'adr_infusion', group:'Medications', label:'Adrenaline IV infusion', detail:'Refractory anaphylaxis only; senior / critical-care led', requires:['iv_access'], once:true, effects:{severity:-0.25, onset:300, progression:{factor:0}}, feedback:'Appropriate for refractory anaphylaxis (ABC problems persisting after two doses of IM adrenaline), with critical-care support and continuous monitoring.'},
+    {id:'fluid_bolus', group:'Circulation', label:'Crystalloid 500 mL IV bolus', detail:'Hartmann’s or 0.9% saline, rapid; repeat as needed', requires:['iv_access'], max:4, effects:{severity:-0.08, onset:300, vitals:{sbp:10, dbp:5, hr:-5}, duration:900}, say:'Nurse: “500 mL running in fast.”'},
+    {id:'chlorphenamine', group:'Medications', label:'Chlorphenamine 10 mg IV', requires:['iv_access'], once:true, feedback:'Antihistamines treat skin features only. They do not treat airway, breathing or circulation problems and are not part of initial resuscitation (RCUK 2021). A non-sedating oral antihistamine is preferred once stable.'},
+    {id:'hydrocortisone', group:'Medications', label:'Hydrocortisone 200 mg IV', requires:['iv_access'], once:true, feedback:'Routine corticosteroids are no longer advised in the emergency treatment of anaphylaxis (RCUK 2021). Consider them only after initial resuscitation, e.g. for refractory reactions or ongoing asthma or shock.'}
+  ],
+  diagnoses:[
+    {id:'dx_anaph', label:'Anaphylaxis (food-triggered)'},
+    {id:'dx_angio', label:'Isolated angioedema (ACE inhibitor / hereditary)'},
+    {id:'dx_asthma', label:'Acute severe asthma'},
+    {id:'dx_septic', label:'Septic shock'},
+    {id:'dx_vaso', label:'Vasovagal syncope'},
+    {id:'dx_panic', label:'Panic attack'}
+  ],
+  dispositions:[
+    {id:'disp_home', label:'Discharge home now with oral antihistamines'},
+    {id:'disp_obs', label:'Observe (≥ 6–12 h); discharge with 2 adrenaline auto-injectors, training, written plan and allergy referral'},
+    {id:'disp_icu', label:'Admit to ICU'},
+    {id:'disp_ward', label:'Admit to general ward for IV steroids'}
+  ],
+  scoring:{
+    critical:[
+      {id:'c_adr', label:'IM adrenaline given', anyOf:['adr_im'], within:300, points:30, why:'IM adrenaline is the first-line treatment. Give it as soon as anaphylaxis is recognised; delay is associated with death.'},
+      {id:'c_o2', label:'High-flow oxygen', anyOf:['o2'], within:300, points:10, why:'Hypoxaemia with airway and breathing compromise.'},
+      {id:'c_fluid', label:'IV fluid bolus for hypotension', anyOf:['fluid_bolus'], within:600, points:10, why:'Anaphylactic shock is distributive; large volumes of crystalloid may be needed.'},
+      {id:'c_mon', label:'Monitoring attached', anyOf:['monitor'], within:180, points:5, why:'Continuous ECG, SpO₂ and BP are needed to judge the response to treatment.'}
+    ],
+    recommended:[
+      {id:'r_help', label:'Called for help early', anyOf:['call_help','call_anaes'], points:5},
+      {id:'r_iv', label:'IV access obtained', anyOf:['iv_access'], points:4},
+      {id:'r_allergy', label:'Asked about allergies', anyOf:['h_allergy'], points:4},
+      {id:'r_asthma', label:'Identified asthma (risk factor for severe reactions)', anyOf:['h_asthma'], points:3},
+      {id:'r_airway', label:'Examined the airway', anyOf:['e_airway'], points:3},
+      {id:'r_pos', label:'Positioned flat with legs raised', anyOf:['position'], points:3},
+      {id:'r_tryptase', label:'Sent a timed mast cell tryptase', anyOf:['i_tryptase'], points:3}
+    ],
+    penalties:[],
+    diagnosis:{correct:'dx_anaph', points:15},
+    disposition:{correct:'disp_obs', points:10, partial:{disp_icu:4}}
+  },
+  teaching:[
+    'Anaphylaxis: sudden Airway and/or Breathing and/or Circulation problems, usually with skin or mucosal changes, after exposure to a trigger. Skin features can be absent.',
+    'Adrenaline 0.5 mg IM (adult) into the anterolateral thigh is first-line. Repeat after 5 minutes if there is no improvement. Do not wait for IV access.',
+    'ABC problems persisting after two IM doses = refractory anaphylaxis: get critical-care help and start a low-dose IV adrenaline infusion with continuous monitoring.',
+    'Never give 1 mg of undiluted adrenaline IV to a patient with a pulse.',
+    'Antihistamines and corticosteroids are not first-line and do not treat ABC problems.',
+    'Give 500–1000 mL crystalloid boluses (adult) for hypotension and repeat as needed.',
+    'Tryptase: take a sample as soon as resuscitation allows, again at 1–2 h, and a baseline at ≥ 24 h.',
+    'Before discharge: observation period according to response, two adrenaline auto-injectors with training, a written plan and referral to an allergy clinic.'
+  ],
+  references:['Resuscitation Council UK. Emergency treatment of anaphylaxis: guidelines for healthcare providers (2021).','World Allergy Organization anaphylaxis guidance (2020).']
+},
+{
+  id:'stemi-inferior-rv', title:'Inferior STEMI with right ventricular involvement',
+  card:{complaint:'Central chest pain and sweating for 45 minutes', discipline:'Cardiology', setting:'Emergency department, PCI-capable hospital', difficulty:'Advanced', minutes:12},
+  patient:{name:'Mohan Das', age:58, sex:'M', weight:78},
+  triage:{note:'Brought in by family. Crushing central chest pain radiating to the jaw and left arm for 45 minutes, with sweating and nausea. Known diabetic and smoker.', vitals:{HR:'54', BP:'94/60', RR:'20', SpO2:'95% air', Temp:'36.8', GCS:'15'}},
+  physiology:{
+    start:0.35, rate:0.055, recovery:0.03, rhythm:{type:'sinus', st:0.28},
+    best:{hr:72, sbp:122, dbp:76, rr:16, spo2:97, temp:36.8},
+    initial:{hr:54, sbp:94, dbp:60, rr:20, spo2:95, temp:36.8},
+    worst:{hr:42, sbp:70, dbp:40, rr:28, spo2:89, temp:36.8}
+  },
+  arrest:{rhythm:'vf', shocksNeeded:1, roscSeverity:0.7},
+  appearance:[
+    {below:0.2, text:'Pain easing, less sweaty, talking comfortably.'},
+    {below:0.5, text:'Grey and sweaty, clutching his chest. Pain 8/10, nauseated.'},
+    {below:0.8, text:'Pale, cold and clammy, restless. Pain 10/10.'},
+    {below:1.01, text:'Drowsy and mottled, barely responding.'}
+  ],
+  history:[
+    {id:'h_pain', q:'Tell me about the pain', keywords:['pain','what happen','start','when','describe','feel like','where','radiat','character','sudden'], a:'It started 45 minutes ago climbing the stairs. Like an elephant sitting on my chest. It goes into my jaw and left arm.'},
+    {id:'h_score', q:'How bad is it, out of 10?', keywords:['out of 10','severe','score','scale','how bad'], a:'Nine out of ten. The worst pain of my life.'},
+    {id:'h_assoc', q:'Any sweating, nausea or breathlessness?', keywords:['sweat','nause','vomit','breathless','short of breath','dizz'], a:'I’m sweating buckets and I feel sick. A little breathless.'},
+    {id:'h_prev', q:'Have you had anything like this before?', keywords:['before','previous','similar','angina','heart attack'], a:'For a few weeks I’ve had tightness walking uphill that went away with rest. Never this bad.'},
+    {id:'h_pmh', q:'Any medical problems?', keywords:['medical history','problem','condition','illness','diabet','pressure','cholesterol'], a:'Diabetes for 10 years and high blood pressure. The doctor said my cholesterol is high.'},
+    {id:'h_meds', q:'What medicines do you take?', keywords:['medic','tablet','taking','drug'], a:'Metformin and amlodipine. I stopped the statin because it gave me aches.'},
+    {id:'h_pde5', q:'Any sildenafil or tadalafil in the last 48 hours?', keywords:['sildenafil','viagra','tadalafil','erectile','pde'], a:'(Embarrassed) Yes… sildenafil, last night.'},
+    {id:'h_allergy', q:'Any allergies?', keywords:['allerg'], a:'No allergies.'},
+    {id:'h_bleed', q:'Any bleeding problems, recent surgery, stroke or ulcer?', keywords:['bleed','surgery','stroke','ulcer','thinner','anticoag'], a:'No, nothing like that.'},
+    {id:'h_social', q:'Do you smoke?', keywords:['smok','cigar','bidi','tobacco','alcohol'], a:'About 20 a day for 30 years.'},
+    {id:'h_family', q:'Any heart disease in the family?', keywords:['family','father','mother','brother'], a:'My father died of a heart attack at 60.'}
+  ],
+  exam:[
+    {id:'e_general', label:'General', text:'Grey, sweaty, anxious, in obvious pain.'},
+    {id:'e_cvs', label:'Cardiovascular', text:'Pulse 54, regular, low volume. JVP raised to 6 cm. Heart sounds normal, no murmurs. Radial pulses equal.'},
+    {id:'e_resp', label:'Respiratory', text:'Chest clear. No crackles.'},
+    {id:'e_abdo', label:'Abdomen', text:'Soft, non-tender.'},
+    {id:'e_periph', label:'Peripheries', text:'Cool peripheries, capillary refill 3 s. No calf swelling.'},
+    {id:'e_neuro', label:'Neurological', text:'GCS 15. No focal deficit.'}
+  ],
+  investigations:[
+    {id:'ecg12', group:'Bedside', label:'12-lead ECG', time:60, text:'Sinus bradycardia 54/min. ST elevation 3 mm in II, III and aVF (III > II). Reciprocal ST depression in I and aVL. ST elevation in V1. Consider right-sided leads.'},
+    {id:'ecg_right', group:'Bedside', label:'Right-sided ECG (V4R)', time:60, text:'1.5 mm ST elevation in V4R: right ventricular involvement.'},
+    {id:'i_cbg', group:'Bedside', label:'Capillary glucose', time:60, text:'14.8 mmol/L (266 mg/dL).'},
+    {id:'i_echo', group:'Bedside', label:'Focused echo (POCUS)', time:300, text:'Inferior wall hypokinesia. Dilated, hypokinetic RV. No pericardial effusion. LV function mildly reduced.'},
+    {id:'i_trop', group:'Laboratory', label:'hs-Troponin', time:1200, text:'hs-Troponin I 86 ng/L (ref < 26).'},
+    {id:'i_bloods', group:'Laboratory', label:'FBC, U&E, coagulation', time:900, text:'Hb 13.8 g/dL, platelets 240 ×10⁹/L, creatinine 98 µmol/L (1.1 mg/dL), K⁺ 4.2 mmol/L, INR 1.0.'},
+    {id:'i_cxr', group:'Imaging', label:'Chest X-ray (portable)', time:600, text:'Normal heart size and mediastinum. Clear lungs.'}
+  ],
+  interventions:[
+    {id:'pads', group:'Monitoring', label:'Apply defibrillator pads', detail:'High early risk of VF', once:true, say:'Nurse: “Pads on, defibrillator in monitor mode.”'},
+    {id:'aspirin', group:'Medications', label:'Aspirin 300 mg chewed', once:true, effects:{progression:{factor:0.8}}, say:'Nurse: “Aspirin 300 mg chewed.”'},
+    {id:'ticagrelor', group:'Medications', label:'Ticagrelor 180 mg oral', detail:'P2Y12 loading dose', once:true, effects:{progression:{factor:0.9}}},
+    {id:'clopidogrel', group:'Medications', label:'Clopidogrel 600 mg oral', detail:'P2Y12 loading dose', once:true, effects:{progression:{factor:0.9}}},
+    {id:'heparin', group:'Medications', label:'Unfractionated heparin IV', detail:'70–100 U/kg bolus for primary PCI', requires:['iv_access'], once:true},
+    {id:'gtn', group:'Medications', label:'GTN 400 micrograms sublingual', max:2, harm:{points:20, why:'Nitrates are contraindicated with systolic BP < 90 mmHg, suspected right ventricular infarction (preload-dependent) and PDE-5 inhibitor use in the previous 24–48 h. This patient had all three.'}, effects:{severity:0.2, onset:60, vitals:{sbp:-25, dbp:-12, hr:4}, duration:600}, say:'Nurse: “GTN given… his pressure is dropping.”'},
+    {id:'morphine', group:'Medications', label:'Morphine 2.5 mg IV, titrated', detail:'With an antiemetic', requires:['iv_access'], max:3, effects:{vitals:{sbp:-5}, onset:120, duration:600}, feedback:'Opioids relieve pain but can worsen hypotension and delay absorption of oral P2Y12 inhibitors. Titrate small doses.'},
+    {id:'atropine', group:'Medications', label:'Atropine 500 micrograms IV', requires:['iv_access'], max:3, effects:{vitals:{hr:14, sbp:5}, onset:60, duration:900}, feedback:'Reasonable for symptomatic bradycardia with hypotension in inferior MI. Here the hypotension is mainly RV failure, so fluids help more.'},
+    {id:'fluid', group:'Circulation', label:'Crystalloid 250 mL IV bolus', detail:'Reassess after each bolus', requires:['iv_access'], max:4, effects:{severity:-0.05, onset:300, vitals:{sbp:10, hr:4}, duration:900}, say:'Nurse: “250 mL going in.”'},
+    {id:'o2', group:'Airway & breathing', label:'High-flow oxygen', detail:'15 L/min via non-rebreather mask', once:true, effects:{vitals:{spo2:3}, onset:60}, feedback:'Routine oxygen is not recommended in acute coronary syndromes when SpO₂ is ≥ 90%.'},
+    {id:'lysis', group:'Medications', label:'Tenecteplase IV (weight-based)', requires:['iv_access'], once:true, effects:{severity:-0.15, onset:900, progression:{factor:0}}, harm:{points:6, why:'Fibrinolysis is for when primary PCI cannot be delivered within 120 minutes of diagnosis. In a PCI-capable centre it adds bleeding risk without benefit over primary PCI.'}},
+    {id:'cathlab', group:'Help & referral', label:'Activate cath lab', detail:'Primary PCI', once:true, say:'Cardiology: “Cath lab activated. Table ready in 20 minutes.”'}
+  ],
+  diagnoses:[
+    {id:'dx_istemi', label:'Inferior STEMI with right ventricular involvement'},
+    {id:'dx_astemi', label:'Anterior STEMI'},
+    {id:'dx_nstemi', label:'NSTEMI'},
+    {id:'dx_dissect', label:'Acute aortic dissection'},
+    {id:'dx_pe', label:'Massive pulmonary embolism'},
+    {id:'dx_peri', label:'Acute pericarditis'}
+  ],
+  dispositions:[
+    {id:'disp_cath', label:'Cath lab for primary PCI, then CCU'},
+    {id:'disp_ccu', label:'Admit to CCU for medical management; angiography tomorrow'},
+    {id:'disp_lysis', label:'Thrombolyse in the ED, then transfer to a PCI centre'},
+    {id:'disp_ward', label:'Admit to a general ward for serial troponins'}
+  ],
+  scoring:{
+    critical:[
+      {id:'c_ecg', label:'12-lead ECG within 10 minutes', anyOf:['ecg12'], within:600, points:15, why:'STEMI is diagnosed on the ECG. Record it within 10 minutes of first medical contact.'},
+      {id:'c_asp', label:'Aspirin given', anyOf:['aspirin'], within:900, points:15, why:'Aspirin 150–300 mg loading dose, chewed.'},
+      {id:'c_cath', label:'Cath lab activated for primary PCI', anyOf:['cathlab'], within:900, points:25, why:'Primary PCI is the preferred reperfusion strategy when it can be delivered within 120 minutes of diagnosis.'},
+      {id:'c_mon', label:'Monitoring attached', anyOf:['monitor'], within:180, points:5, why:'Risk of VF and brady-arrhythmia is highest in the first hours.'}
+    ],
+    recommended:[
+      {id:'r_p2y12', label:'P2Y12 inhibitor loading dose', anyOf:['ticagrelor','clopidogrel'], points:5},
+      {id:'r_rv', label:'Right-sided ECG to look for RV infarction', anyOf:['ecg_right'], points:5},
+      {id:'r_fluid', label:'Fluid bolus for RV-infarct hypotension', anyOf:['fluid'], points:5},
+      {id:'r_pads', label:'Defibrillator pads applied', anyOf:['pads'], points:3},
+      {id:'r_iv', label:'IV access obtained', anyOf:['iv_access'], points:3},
+      {id:'r_bleed', label:'Checked allergies or bleeding risk', anyOf:['h_allergy','h_bleed'], points:3},
+      {id:'r_pde5', label:'Asked about PDE-5 inhibitors', anyOf:['h_pde5'], points:3}
+    ],
+    penalties:[
+      {ifAction:'o2', when:{spo2:{gte:92}}, points:3, why:'Oxygen was given with SpO₂ ≥ 92%. Routine oxygen does not help in ACS unless SpO₂ is < 90%.'},
+      {ifAction:'clopidogrel', ifDone:['ticagrelor'], points:5, why:'Two different P2Y12 inhibitors were loaded. Give one.'},
+      {ifAction:'ticagrelor', ifDone:['clopidogrel'], points:5, why:'Two different P2Y12 inhibitors were loaded. Give one.'}
+    ],
+    diagnosis:{correct:'dx_istemi', points:15},
+    disposition:{correct:'disp_cath', points:10}
+  },
+  teaching:[
+    'Record and read a 12-lead ECG within 10 minutes of first medical contact. STEMI is an ECG diagnosis: do not wait for troponin.',
+    'In inferior STEMI, record right-sided leads (V4R). RV involvement is common; the clue is hypotension with a raised JVP and clear lungs.',
+    'RV infarction is preload-dependent: avoid nitrates and diuretics and give cautious fluid boluses.',
+    'Nitrates are contraindicated with SBP < 90 mmHg, RV infarction, and sildenafil in the past 24 h or tadalafil in the past 48 h.',
+    'Aspirin loading plus a P2Y12 inhibitor; anticoagulation at the time of PCI.',
+    'Primary PCI if it can be delivered within 120 minutes of diagnosis. Otherwise give fibrinolysis within 10 minutes of diagnosis and transfer.',
+    'Oxygen only if SpO₂ < 90%. Put pads on early: VF risk is highest in the first hours.'
+  ],
+  references:['2023 ESC Guidelines for the management of acute coronary syndromes.','Resuscitation Council UK. Adult advanced life support guidelines (2021).']
+},
+{
+  id:'tension-pneumothorax', title:'Right tension pneumothorax after blunt trauma',
+  card:{complaint:'Motorcyclist with a chest injury, rapidly worsening breathlessness', discipline:'Trauma', setting:'Emergency department trauma bay', difficulty:'Core', minutes:8},
+  patient:{name:'Sameer Khan', age:32, sex:'M', weight:72},
+  triage:{note:'Motorcycle versus car at about 50 km/h, helmeted. Struck the right side of his chest on the handlebar. Paramedics gave oxygen by face mask. Increasingly breathless over the last 10 minutes.', vitals:{HR:'126', BP:'92/58', RR:'32', SpO2:'88% on mask', Temp:'36.4', GCS:'14'}},
+  physiology:{
+    start:0.5, rate:0.09, recovery:0.08, rhythm:{type:'sinus'},
+    best:{hr:92, sbp:124, dbp:78, rr:18, spo2:97, temp:36.5},
+    initial:{hr:126, sbp:92, dbp:58, rr:32, spo2:88, temp:36.4},
+    worst:{hr:150, sbp:55, dbp:30, rr:42, spo2:70, temp:36.3}
+  },
+  arrest:{rhythm:'pea', requireAdrenaline:false, reversibleBy:['needle_r','finger_r'], roscSeverity:0.6},
+  speech:{impairedAbove:0.8, impairedText:'(Too breathless to answer. He grips your arm.)'},
+  appearance:[
+    {below:0.2, text:'Breathing more easily and talking in sentences. Colour improving.'},
+    {below:0.45, text:'Breathless but talking in short sentences.'},
+    {below:0.75, text:'Severely distressed, sitting up, speaking in single words. Lips dusky.'},
+    {below:1.01, text:'Agitated, then drowsy. Gasping and grey.'}
+  ],
+  history:[
+    {id:'h_para', q:'Ask the paramedic for a handover', source:'Paramedic', keywords:['paramedic','handover','ambulance','mist','crew'], a:'MIST: motorcycle versus car, about 50 km/h, helmet on, no loss of consciousness. Injury to the right chest wall. On scene HR 110, BP 118/76, RR 26, SpO₂ 94%, getting worse en route. Oxygen by face mask. We couldn’t get IV access.'},
+    {id:'h_what', q:'What happened?', keywords:['what happen','accident','crash','how did','hit'], a:'Bike… car hit me… chest… handlebar.'},
+    {id:'h_pain', q:'Where does it hurt?', keywords:['pain','hurt','where','sore'], a:'Right side… hurts to breathe.'},
+    {id:'h_breath', q:'How is your breathing?', keywords:['breath','air'], a:'Can’t… get air. Worse… and worse.'},
+    {id:'h_other', q:'Any pain in your head, neck, tummy or legs?', keywords:['head','neck','back','abdom','belly','tummy','leg','anywhere else'], a:'Just… chest.'},
+    {id:'h_allergy', q:'Any allergies?', keywords:['allerg'], a:'No.'},
+    {id:'h_pmh', q:'Any medical problems or medicines?', keywords:['medical','problem','medic','tablet','asthma','lung'], a:'None… healthy.'}
+  ],
+  exam:[
+    {id:'e_airway', label:'Airway', text:'Talking in short phrases. Airway patent, no stridor.'},
+    {id:'e_trachea', label:'Trachea & neck veins', text:'Trachea deviated to the LEFT. Neck veins distended.', variants:[{if:{done:['needle_r','finger_r']}, text:'Trachea central. Neck veins no longer distended.'}]},
+    {id:'e_chest', label:'Chest', text:'Bruising over the right lateral chest wall. Reduced expansion, hyper-resonant percussion and absent breath sounds on the right. Left side normal.', variants:[{if:{done:['needle_r','finger_r']}, text:'Bruising over the right lateral chest wall. Breath sounds returning on the right, less resonant. Left side normal.'}]},
+    {id:'e_circ', label:'Circulation', text:'Rapid, thready pulse. Capillary refill 4 s. Heart sounds normal.'},
+    {id:'e_abdo', label:'Abdomen & pelvis', text:'Soft, non-tender, no bruising. Pelvis not examined by springing (binder not indicated).'},
+    {id:'e_neuro', label:'Disability', text:'GCS 14 (E4 V4 M6). Pupils equal and reactive. Moving all four limbs.'},
+    {id:'e_expo', label:'Exposure', text:'Abrasions to the right arm. No long-bone deformity.'}
+  ],
+  investigations:[
+    {id:'i_efast', group:'Bedside', label:'eFAST ultrasound', time:90, text:'Right: absent lung sliding, barcode sign on M-mode. Left: lung sliding present. No pericardial effusion. No free fluid in the abdomen.', variants:[{if:{done:['needle_r','finger_r']}, text:'Right: lung sliding partly visible anteriorly. Left: normal. No pericardial effusion. No free fluid.'}]},
+    {id:'i_vbg', group:'Bedside', label:'Venous blood gas', time:180, text:'pH 7.28, pCO₂ 55 mmHg, lactate 4.1 mmol/L, Hb 13.9 g/dL.'},
+    {id:'i_cbg', group:'Bedside', label:'Capillary glucose', time:60, text:'7.4 mmol/L (133 mg/dL).'},
+    {id:'i_bloods', group:'Laboratory', label:'Trauma bloods, group & crossmatch', time:1200, text:'Hb 13.6 g/dL, platelets 210 ×10⁹/L, INR 1.0. Group O RhD positive; 2 units crossmatched.'},
+    {id:'i_cxr', group:'Imaging', label:'Chest X-ray (portable)', time:600, text:'Large right pneumothorax with mediastinal shift to the left and a flattened right hemidiaphragm.', variants:[{if:{done:['icd_r']}, text:'Right chest drain in situ; lung re-expanded. Undisplaced fractures of the right 5th and 6th ribs. Mediastinum central.'},{if:{done:['needle_r','finger_r']}, text:'Right pneumothorax, smaller; decompression device in situ. Mediastinum central.'}]},
+    {id:'i_ct', group:'Imaging', label:'CT chest (trauma series)', time:1200, text:'Right chest drain in situ, small residual pneumothorax, undisplaced right 5th–6th rib fractures, small lung contusion. No other injury.', variants:[{if:{severityAbove:0.3}, text:'Radiographer: “He’s too unstable to come to CT. Stabilise him first.”'}]}
+  ],
+  interventions:[
+    {id:'iv_access', label:'IV access', detail:'Two large-bore cannulae (IO if not possible)'},
+    {id:'call_trauma', group:'Help & referral', label:'Call trauma team', detail:'Trauma team leader / senior', once:true, say:'Nurse: “Trauma team called.”'},
+    {id:'cspine', group:'Airway & breathing', label:'Cervical spine protection', detail:'Manual in-line stabilisation', once:true},
+    {id:'o2', group:'Airway & breathing', label:'High-flow oxygen', detail:'15 L/min via non-rebreather mask', once:true, effects:{vitals:{spo2:4}, onset:60}, say:'Nurse: “Non-rebreather on at 15 litres.”'},
+    {id:'needle_r', group:'Procedures', label:'Needle decompression, RIGHT', detail:'4th/5th ICS just anterior to mid-axillary line (or 2nd ICS MCL)', max:3, effects:{severity:-0.45, onset:20, progression:{factor:0.25}}, say:'A hiss of air on insertion.'},
+    {id:'needle_l', group:'Procedures', label:'Needle decompression, LEFT', detail:'4th/5th ICS just anterior to mid-axillary line', once:true, harm:{points:20, why:'Wrong side. Decompressing the normal side creates a pneumothorax in the good lung.'}, effects:{severity:0.25, onset:60}, say:'No rush of air.'},
+    {id:'finger_r', group:'Procedures', label:'Finger thoracostomy, RIGHT', detail:'4th/5th ICS, just anterior to mid-axillary line', once:true, effects:{severity:-0.5, onset:20, progression:{factor:0.1}}, say:'A rush of air through the thoracostomy.'},
+    {id:'icd_r', group:'Procedures', label:'Chest drain (ICD), RIGHT', detail:'Safe triangle, underwater seal', once:true, effects:{severity:-0.35, onset:240, progression:{factor:0}}, say:'Nurse: “Drain in. It’s swinging and bubbling.”'},
+    {id:'intubate', group:'Airway & breathing', label:'RSI and intubation', once:true, effects:{severity:0.35, onset:45, unlessDone:['needle_r','finger_r']}, feedback:'Positive-pressure ventilation can turn a simple pneumothorax into a tension pneumothorax. Decompress first, and have a chest drain in place when ventilating.'},
+    {id:'fluids', group:'Circulation', label:'Warmed crystalloid 250 mL', requires:['iv_access'], max:4, effects:{vitals:{sbp:5}, onset:120, duration:600}},
+    {id:'blood', group:'Circulation', label:'Transfuse O-negative blood', detail:'2 units', requires:['iv_access'], once:true, feedback:'Nothing suggested haemorrhage: this shock was obstructive. Blood carries its own risks.'},
+    {id:'analgesia', group:'Medications', label:'Fentanyl 50 micrograms IV, titrated', requires:['iv_access'], max:3}
+  ],
+  diagnoses:[
+    {id:'dx_tension', label:'Right tension pneumothorax'},
+    {id:'dx_simple', label:'Simple right pneumothorax'},
+    {id:'dx_haemo', label:'Massive right haemothorax'},
+    {id:'dx_tamp', label:'Cardiac tamponade'},
+    {id:'dx_flail', label:'Flail chest with pulmonary contusion'},
+    {id:'dx_abdo', label:'Hypovolaemic shock from intra-abdominal bleeding'}
+  ],
+  dispositions:[
+    {id:'disp_hdu', label:'Admit under trauma surgery (HDU) with chest drain; CT once stable'},
+    {id:'disp_ct', label:'Straight to CT now, then decide'},
+    {id:'disp_theatre', label:'Emergency thoracotomy in theatre'},
+    {id:'disp_home', label:'Discharge after observation'}
+  ],
+  scoring:{
+    critical:[
+      {id:'c_decomp', label:'Right chest decompressed', anyOf:['needle_r','finger_r'], within:240, points:35, why:'Tension pneumothorax is a clinical diagnosis. Decompress immediately, before imaging.'},
+      {id:'c_o2', label:'High-flow oxygen', anyOf:['o2'], within:120, points:10, why:'Hypoxaemia in major trauma.'},
+      {id:'c_icd', label:'Chest drain inserted', anyOf:['icd_r'], within:1200, points:10, why:'Needle decompression is temporary. A chest drain is the definitive treatment.'}
+    ],
+    recommended:[
+      {id:'r_help', label:'Called the trauma team', anyOf:['call_trauma'], points:5},
+      {id:'r_mon', label:'Monitoring attached', anyOf:['monitor'], points:5},
+      {id:'r_chest', label:'Examined chest, trachea and neck veins', anyOf:['e_chest','e_trachea'], points:5},
+      {id:'r_handover', label:'Took the paramedic handover', anyOf:['h_para'], points:4},
+      {id:'r_iv', label:'IV access obtained', anyOf:['iv_access'], points:3},
+      {id:'r_cspine', label:'Cervical spine protected', anyOf:['cspine'], points:2},
+      {id:'r_analgesia', label:'Analgesia given', anyOf:['analgesia'], points:2}
+    ],
+    penalties:[
+      {ifAction:'i_cxr', before:['needle_r','finger_r'], points:8, why:'A chest X-ray was requested before decompression. Tension pneumothorax is a clinical diagnosis; imaging delays life-saving treatment.'},
+      {ifAction:'intubate', before:['needle_r','finger_r'], points:15, why:'Intubated before decompressing the chest. Positive-pressure ventilation worsens tension physiology and can precipitate arrest.'},
+      {ifAction:'i_ct', when:{sbp:{lt:90}}, points:8, why:'CT was requested while the patient was hypotensive. Unstable patients go to CT only after stabilisation.'}
+    ],
+    diagnosis:{correct:'dx_tension', points:15},
+    disposition:{correct:'disp_hdu', points:10}
+  },
+  teaching:[
+    'Tension pneumothorax is a clinical diagnosis: respiratory distress, hypoxia, tachycardia and hypotension with unilateral absent breath sounds and hyper-resonance. Tracheal deviation and distended neck veins are late and unreliable signs.',
+    'Decompress immediately. Do not wait for a chest X-ray.',
+    'ATLS (10th edition) recommends needle decompression in adults at the 4th/5th intercostal space just anterior to the mid-axillary line, where the chest wall is thinner. The 2nd intercostal space in the mid-clavicular line is still used in children and some systems.',
+    'Needles kink, block and fall short. Reassess after decompression. Finger thoracostomy is preferred in ventilated or arrested patients. Follow with a chest drain.',
+    'Positive-pressure ventilation can turn a simple pneumothorax into a tension pneumothorax.',
+    'In traumatic cardiac arrest, treat reversible causes (hypoxia, tension pneumothorax, tamponade, hypovolaemia) before adrenaline.'
+  ],
+  references:['American College of Surgeons. Advanced Trauma Life Support (ATLS), 10th edition (2018).','European Resuscitation Council Guidelines 2021: cardiac arrest in special circumstances (traumatic cardiac arrest).']
+}
+];
+
+/* ======================================================================
+   ENGINE
+   ====================================================================== */
+const VITAL_KEYS = ['hr','sbp','dbp','rr','spo2','temp'];
+const GROUP_ORDER = ['Monitoring','Airway & breathing','Circulation','Medications','Procedures','Help & referral','Resuscitation'];
+const GENERIC_ACTIONS = [
+  {id:'monitor', group:'Monitoring', label:'Attach monitoring', detail:'3-lead ECG, SpO₂, NIBP, temperature', once:true, say:'Nurse: “Monitoring is on.”'},
+  {id:'iv_access', group:'Circulation', label:'IV access', detail:'Two large-bore cannulae; bloods drawn', once:true, say:'Nurse: “Two cannulae in and bloods drawn.”'},
+  {id:'cpr', group:'Resuscitation', label:'Start CPR', detail:'30:2, 100–120/min, 5–6 cm deep', resus:'cpr'},
+  {id:'rhythm_check', group:'Resuscitation', label:'Rhythm & pulse check', detail:'Pause compressions for < 10 s', resus:'check'},
+  {id:'defib', group:'Resuscitation', label:'Defibrillate', detail:'150–200 J biphasic, unsynchronised', resus:'shock'},
+  {id:'adr_1mg_iv', group:'Resuscitation', label:'Adrenaline 1 mg IV/IO', detail:'Cardiac-arrest dose, every 3–5 min', requires:['iv_access'], resus:'adr'},
+  {id:'amio_300', group:'Resuscitation', label:'Amiodarone 300 mg IV/IO', detail:'After 3 shocks in VF/pVT', requires:['iv_access'], resus:'amio'}
+];
+const RHYTHM_NAMES = {vf:'ventricular fibrillation', pea:'pulseless electrical activity', asystole:'asystole'};
+
+const clamp = (x,a,b) => Math.max(a, Math.min(b, x));
+const lerp = (a,b,t) => a + (b-a)*t;
+const fmt = s => { s = Math.max(0, Math.floor(s)); return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0'); };
+const humanTime = s => s < 90 ? `${Math.round(s)} s` : `${Math.round(s/60)} min`;
+const store = {
+  get(k, d){ try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch(e){ return d; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+};
+function h(tag, attrs, ...kids){
+  const el = document.createElement(tag);
+  for (const [k,v] of Object.entries(attrs || {})){
+    if (v == null || v === false) continue;
+    if (k === 'class') el.className = v;
+    else if (k === 'text') el.textContent = v;
+    else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v === true ? '' : v);
+  }
+  for (const k of kids.flat()){ if (k == null || k === false) continue; el.append(k.nodeType ? k : document.createTextNode(String(k))); }
+  return el;
+}
+const $ = s => document.querySelector(s);
+
+let C = null;   // active case
+let S = null;   // simulation state
+let ACT = {};   // action map for the active case
+
+function normalizeCase(c){
+  for (const k of ['history','exam','investigations','interventions','diagnoses','dispositions','teaching','references','appearance']) c[k] = c[k] || [];
+  c.scoring.critical = c.scoring.critical || []; c.scoring.recommended = c.scoring.recommended || []; c.scoring.penalties = c.scoring.penalties || [];
+  c.physiology.rhythm = c.physiology.rhythm || {type:'sinus'};
+  if (c.physiology.recovery == null) c.physiology.recovery = 0.05;
+  return c;
+}
+function validateCase(c){
+  const e = [];
+  if (!c || typeof c !== 'object') return ['The file is not a JSON object.'];
+  for (const k of ['id','title','patient','card','physiology','scoring']) if (!c[k]) e.push(`Missing "${k}".`);
+  if (c.physiology){
+    for (const k of ['best','initial','worst']){
+      if (!c.physiology[k]) { e.push(`Missing "physiology.${k}".`); continue; }
+      for (const v of VITAL_KEYS) if (typeof c.physiology[k][v] !== 'number') e.push(`"physiology.${k}.${v}" must be a number.`);
+    }
+    if (!(c.physiology.start > 0 && c.physiology.start < 1)) e.push('"physiology.start" must be between 0 and 1.');
+    if (typeof c.physiology.rate !== 'number') e.push('"physiology.rate" must be a number (severity per minute).');
+  }
+  if (c.scoring && (!c.scoring.diagnosis || !c.scoring.disposition)) e.push('"scoring" needs "diagnosis" and "disposition".');
+  return e;
+}
+
+function count(id){ return (S && S.counts[id]) || 0; }
+function anyDone(ids){ return [].concat(ids).some(id => count(id) > 0); }
+
+function buildActions(c){
+  const map = {};
+  for (const a of GENERIC_ACTIONS) map[a.id] = {...a};
+  for (const a of c.interventions) map[a.id] = {...(map[a.id] || {group:'Medications'}), ...a};
+  return map;
+}
+
+function newState(c){
+  return {
+    t:0, speed:1, paused:false, ended:false, endReason:null,
+    sev:c.physiology.start, sevFx:[], vitFx:[], prog:[], v:null,
+    monitor:false, nibp:null, nibpNext:0, nibpUntil:null,
+    counts:{}, timeline:[], log:[], pending:[], results:[], findings:[], transcript:[],
+    penalties:[], notes:[], arrest:null, arrests:0, roscs:0, died:false, arrestBands:[],
+    vlog:[], nextVlog:0, appearance:null, dx:null, disp:null, alarmAt:0,
+    order:{dx:shuffle(c.diagnoses.slice()), disp:shuffle(c.dispositions.slice())}
+  };
+}
+function shuffle(a){ for (let i = a.length-1; i > 0; i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; }
+
+/* ---- physiology ---- */
+function baseVitals(sev){
+  const P = C.physiology, s0 = P.start, out = {};
+  for (const k of VITAL_KEYS){
+    const b = P.best[k], i = P.initial[k], w = P.worst[k];
+    out[k] = sev <= s0 ? lerp(b, i, sev/s0) : lerp(i, w, (sev-s0)/(1-s0));
+  }
+  return out;
+}
+function vitalsNow(){
+  if (S.arrest) return {hr: S.arrest.rhythm === 'pea' ? 42 : 0, sbp:0, dbp:0, rr:0, spo2:null, temp:C.physiology.initial.temp};
+  const v = baseVitals(S.sev);
+  for (const e of S.vitFx){
+    if (S.t < e.start) continue;
+    let f = clamp((S.t - e.start)/Math.max(1, e.onset), 0, 1);
+    if (e.until != null && S.t > e.until) f *= clamp(1 - (S.t - e.until)/60, 0, 1);
+    for (const [k,d] of Object.entries(e.vitals)) v[k] += d*f;
+  }
+  v.spo2 = clamp(v.spo2, 50, 100); v.hr = clamp(v.hr, 20, 220); v.sbp = clamp(v.sbp, 30, 240);
+  v.dbp = clamp(v.dbp, 15, Math.max(20, v.sbp - 12)); v.rr = clamp(v.rr, 4, 60);
+  return v;
+}
+function progFactor(){
+  let f = 1;
+  for (const m of S.prog) if (S.t >= m.start && (m.until == null || S.t < m.until)) f *= m.factor;
+  return f;
+}
+function applyEffects(a){
+  const ef = a.effects; if (!ef) return;
+  if (ef.unlessDone && anyDone(ef.unlessDone)) return;
+  if (ef.maxSeverity != null && S.sev > ef.maxSeverity){ if (ef.blockedSay) log('speech', ef.blockedSay); return; }
+  const start = S.t + (ef.delay || 0), onset = ef.onset || 60;
+  if (ef.severity) S.sevFx.push({start, onset, total:ef.severity, applied:0});
+  if (ef.vitals) S.vitFx.push({start, onset, vitals:ef.vitals, until: ef.duration ? start + ef.duration : null});
+  if (ef.progression) S.prog.push({start, factor:ef.progression.factor, until: ef.progression.duration ? start + ef.progression.duration : null});
+}
+
+function tick(dt){
+  if (!S || S.ended || S.paused) return;
+  S.t += dt;
+  const P = C.physiology;
+  if (!S.arrest){
+    const f = progFactor();
+    if (f > 0) S.sev += (P.rate/60)*f*dt; else S.sev -= (P.recovery/60)*dt;
+  }
+  for (const e of S.sevFx){
+    if (S.t < e.start || e.done) continue;
+    const target = e.total * clamp((S.t - e.start)/Math.max(1, e.onset), 0, 1);
+    const d = target - e.applied; e.applied = target; if (target === e.total) e.done = true;
+    if (!S.arrest) S.sev += d;
+  }
+  S.sev = clamp(S.sev, 0, 1);
+  if (!S.arrest && S.sev >= 1){ if (C.arrest) startArrest(); }
+  if (S.arrest) arrestTick();
+  if (S.ended) return;
+  S.v = vitalsNow();
+  for (const p of S.pending.slice()){
+    if (S.t >= p.ready){
+      S.pending.splice(S.pending.indexOf(p), 1); S.results.unshift(p);
+      log('result', p.text, p.label); markTab('investigate');
+      if (UI.tab === 'investigate') renderInvestigate();
+    }
+  }
+  if (S.monitor){
+    if (S.nibpUntil != null){ if (S.t >= S.nibpUntil) finishNibp(); }
+    else if (S.t >= S.nibpNext) startNibp();
+  }
+  if (S.t >= S.nextVlog){
+    const v = S.v;
+    S.vlog.push({t:S.t, hr:S.arrest ? null : Math.round(v.hr), sbp:S.arrest ? null : Math.round(v.sbp), spo2:S.arrest ? null : Math.round(v.spo2)});
+    S.nextVlog = S.t + 10;
+  }
+  updateAppearance();
+}
+
+/* ---- cardiac arrest ---- */
+const isShockable = r => r === 'vf' || r === 'pvt';
+function startArrest(){
+  S.arrest = {start:S.t, rhythm:C.arrest.rhythm, cpr:false, shocks:0, adr:0, amio:0, roscAt:null, checkUntil:0};
+  S.arrests++; S.arrestBands.push({start:S.t, end:null});
+  S.v = vitalsNow();
+  addPenalty('arrest', 15, 'The patient deteriorated into cardiac arrest.');
+  log('alert', `Cardiac arrest: unresponsive, not breathing normally, no pulse. Monitor shows ${RHYTHM_NAMES[S.arrest.rhythm]}.`);
+  log('speech', 'Nurse: “No pulse! Shall I start compressions?”');
+  $('#arrestBanner').hidden = false; switchTab('treat');
+}
+function arrestTick(){
+  const A = S.arrest, cfg = C.arrest, el = S.t - A.start;
+  if (!A.cpr && el > 60) addPenalty('cpr_delay', 10, 'CPR was not started within 1 minute of cardiac arrest.');
+  if (isShockable(A.rhythm) && A.shocks === 0 && el > 120) addPenalty('shock_delay', 10, 'The first shock for a shockable rhythm was delayed beyond 2 minutes.');
+  if (A.roscAt == null && A.cpr){
+    const ok = isShockable(A.rhythm)
+      ? A.shocks >= (cfg.shocksNeeded || 1)
+      : (cfg.requireAdrenaline === false || A.adr > 0) && (!cfg.reversibleBy || anyDone(cfg.reversibleBy));
+    if (ok) A.roscAt = S.t + (isShockable(A.rhythm) ? 20 : 30);
+  }
+  if (A.roscAt != null && S.t >= A.roscAt){
+    S.roscs++; S.arrestBands[S.arrestBands.length-1].end = S.t; S.arrest = null;
+    S.sev = cfg.roscSeverity ?? 0.8; S.nibpUntil = null; S.nibpNext = S.t + 3;
+    log('alert', 'ROSC: a pulse is back. Reassess ABCDE and treat the cause.');
+    $('#arrestBanner').hidden = true; renderTreat();
+  } else if (el >= 600){
+    S.died = true; S.arrestBands[S.arrestBands.length-1].end = S.t;
+    addPenalty('death', 30, 'Resuscitation was unsuccessful after 10 minutes.');
+    log('alert', 'Resuscitation stopped after 10 minutes. The patient died.');
+    endCase('died');
+  }
+}
+function currentRhythm(){
+  if (!S) return {type:'sinus', beats:true, hr:72, pulse:true, perf:1, rr:14, st:0, p:true};
+  if (S.arrest){
+    const r = S.arrest.rhythm;
+    return {type:r, beats:r === 'pea', hr:42, pulse:false, perf:0, rr:0, st:0, p:true, cpr:S.arrest.cpr && S.t >= S.arrest.checkUntil};
+  }
+  const v = S.v || vitalsNow(), base = C.physiology.rhythm;
+  return {type:base.type || 'sinus', beats:true, hr:v.hr, pulse:true, perf:clamp(v.sbp/120, 0.15, 1), rr:v.rr, st:base.st || 0, p:base.type !== 'af'};
+}
+
+/* ---- actions ---- */
+function addPenalty(key, points, why){
+  if (S.penalties.some(p => p.key === key)) return;
+  S.penalties.push({key, points, why, t:S.t});
+}
+function checkRules(id, v){
+  C.scoring.penalties.forEach((r, i) => {
+    if (r.ifAction !== id) return;
+    if (r.before && anyDone(r.before)) return;
+    if (r.ifDone && !anyDone(r.ifDone)) return;
+    if (r.when){
+      for (const [k,c] of Object.entries(r.when)){
+        const x = k === 'severity' ? S.sev : v[k];
+        if (x == null) return;
+        if (c.gte != null && !(x >= c.gte)) return; if (c.gt != null && !(x > c.gt)) return;
+        if (c.lt != null && !(x < c.lt)) return;   if (c.lte != null && !(x <= c.lte)) return;
+      }
+    }
+    addPenalty('rule:' + i, r.points, r.why);
+  });
+}
+function record(id, label, kind){
+  const v = S.v || vitalsNow();
+  checkRules(id, v);                                  // rules look at what was done *before* this action
+  S.counts[id] = (S.counts[id] || 0) + 1;
+  S.timeline.push({t:S.t, id, label, kind});
+}
+function perform(id){
+  if (!S || S.ended) return;
+  const a = ACT[id]; if (!a) return;
+  if (S.paused) togglePause(false);
+  if (a.requires && !anyDone(a.requires)){ log('speech', a.requiresSay || 'Nurse: “We need IV access for that first.”'); return; }
+  if (a.once && count(id) > 0){ log('system', `${a.label}: already done.`); return; }
+  if (a.max && count(id) >= a.max){ log('system', `${a.label}: maximum of ${a.max} reached. Ask for senior help.`); return; }
+  if (a.resus){ resus(a); refreshAfterAction(); return; }
+  record(id, a.label, 'treat');
+  log('action', a.label + (a.detail && !a.say ? ` (${a.detail})` : ''));
+  if (a.say) log('speech', a.say);
+  if (a.harm) addPenalty('harm:' + id, a.harm.points, a.harm.why);
+  if (a.feedback && !S.notes.some(n => n.id === id)) S.notes.push({id, label:a.label, text:a.feedback});
+  applyEffects(a);
+  if (id === 'monitor'){ S.monitor = true; S.nibpNext = S.t; S.v = vitalsNow(); monitorOverlay(); updateNumerics(); }
+  refreshAfterAction();
+}
+function resus(a){
+  const A = S.arrest, kind = a.resus;
+  if (kind === 'cpr'){
+    if (!A){ record(a.id, 'CPR attempted on a patient with a pulse', 'treat'); addPenalty('cpr_pulse', 15, 'Chest compressions were started on a patient with a pulse.'); log('speech', 'Nurse: “Wait, there is a pulse. Compressions aren’t indicated.”'); return; }
+    if (A.cpr){ log('system', 'CPR is already in progress.'); return; }
+    A.cpr = true; record(a.id, a.label, 'treat');
+    log('action', 'CPR started: 30:2 at 100–120/min, 5–6 cm deep. Swap compressors every 2 minutes.'); return;
+  }
+  if (kind === 'check'){
+    record(a.id, a.label, 'treat');
+    if (!A){ const v = S.v || vitalsNow(); log('speech', `Nurse: “Pulse present. Heart rate about ${Math.round(v.hr)}.”`); return; }
+    A.checkUntil = S.t + 8;
+    log('speech', `Rhythm check: ${RHYTHM_NAMES[A.rhythm]}, no pulse. ${isShockable(A.rhythm) ? 'Shockable: charge the defibrillator.' : 'Non-shockable: continue CPR, give adrenaline, treat reversible causes.'}`);
+    return;
+  }
+  if (kind === 'shock'){
+    record(a.id, a.label, 'treat');
+    if (!A){ addPenalty('shock_pulse', 25, 'An unsynchronised shock was delivered to a patient with a pulse, which can induce VF.'); log('alert', 'Unsynchronised shock delivered to a patient with a pulse.'); return; }
+    if (!isShockable(A.rhythm)){ addPenalty('shock_nonshock', 10, 'A non-shockable rhythm was shocked. This interrupts CPR without benefit.'); log('speech', 'Shock delivered. Rhythm unchanged. Resume CPR.'); return; }
+    A.shocks++; log('action', `Shock ${A.shocks} delivered (200 J biphasic). Resume CPR immediately for 2 minutes.`); return;
+  }
+  if (kind === 'adr'){
+    record(a.id, a.label, 'treat');
+    if (!A){
+      addPenalty('adr_pulse', 20, C.ivAdrenalineHarm || 'Adrenaline 1 mg IV is the cardiac-arrest dose. In a patient with a pulse it can cause severe hypertension, VT/VF and myocardial ischaemia.');
+      log('alert', 'Adrenaline 1 mg IV given to a patient with a pulse.');
+      S.vitFx.push({start:S.t, onset:20, vitals:{hr:40, sbp:60, dbp:30}, until:S.t + 180}); return;
+    }
+    A.adr++; log('action', `Adrenaline 1 mg IV given (dose ${A.adr}). Repeat every 3–5 minutes.`); return;
+  }
+  if (kind === 'amio'){
+    record(a.id, a.label, 'treat');
+    if (!A || !isShockable(A.rhythm)){ addPenalty('amio_wrong', 10, 'Amiodarone 300 mg is for shock-refractory VF/pVT. It was not indicated here.'); log('system', 'Amiodarone 300 mg given.'); return; }
+    A.amio++; log('action', 'Amiodarone 300 mg IV given.');
+  }
+}
+function resolveText(item){
+  for (const v of item.variants || []) if (matchCond(v.if)) return v.text;
+  return item.text;
+}
+function matchCond(c){
+  if (!c) return true;
+  if (c.done && !anyDone(c.done)) return false;
+  if (c.notDone && anyDone(c.notDone)) return false;
+  if (c.severityBelow != null && !(S.sev < c.severityBelow)) return false;
+  if (c.severityAbove != null && !(S.sev > c.severityAbove)) return false;
+  return true;
+}
+function order(id){
+  if (!S || S.ended) return;
+  const inv = C.investigations.find(x => x.id === id); if (!inv) return;
+  if (S.paused) togglePause(false);
+  if (S.pending.some(p => p.id === id)){ log('system', `${inv.label} is already pending.`); return; }
+  record(id, 'Ordered ' + inv.label, 'investigate');
+  const time = inv.time || 60;
+  S.pending.push({id, label:inv.label, text:resolveText(inv), ordered:S.t, ready:S.t + time});
+  log('action', `Ordered ${inv.label}. Result in about ${humanTime(time)}.`);
+  refreshAfterAction();
+}
+function examine(id){
+  if (!S || S.ended) return;
+  const e = C.exam.find(x => x.id === id); if (!e) return;
+  if (S.paused) togglePause(false);
+  record(id, 'Examined ' + e.label.toLowerCase(), 'exam');
+  const text = S.arrest ? 'Unresponsive. No breathing, no central pulse.' : resolveText(e);
+  S.findings.unshift({t:S.t, label:e.label, text});
+  log('action', `Examined ${e.label.toLowerCase()}.`);
+  refreshAfterAction();
+}
+function ask(item, typed){
+  if (!S || S.ended) return;
+  if (S.paused) togglePause(false);
+  record(item.id, 'Asked: ' + item.q, 'history');
+  const src = item.source || 'Patient';
+  let ans = resolveText({text:item.a, variants:item.variants});
+  if (src === 'Patient'){
+    if (S.arrest) ans = '(No response. The patient is unresponsive.)';
+    else if (C.speech && S.sev > C.speech.impairedAbove) ans = C.speech.impairedText;
+  }
+  S.transcript.push({who:'You', text:typed || item.q}, {who:src, text:ans});
+  log('action', 'Asked: ' + item.q);
+  refreshAfterAction();
+}
+function matchQuestion(text){
+  const q = text.toLowerCase(); let best = null, score = 0;
+  for (const it of C.history){
+    let s = 0; for (const k of it.keywords || []) if (q.includes(k.toLowerCase())) s += k.length;
+    if (s > score){ score = s; best = it; }
+  }
+  return best;
+}
+function askFree(text){
+  text = text.trim(); if (!text) return;
+  const it = matchQuestion(text);
+  if (it) return ask(it, text);
+  S.transcript.push({who:'You', text}, {who:'Patient', text:S.arrest ? '(No response.)' : '(Looks puzzled.) Sorry, I don’t follow. Could you ask that another way?'});
+  refreshAfterAction();
+}
+
+/* ---- NIBP ---- */
+function startNibp(){ S.nibpUntil = S.t + 15; updateNumerics(); }
+function finishNibp(){
+  const v = S.v || vitalsNow();
+  S.nibp = S.arrest ? {fail:true, t:S.t} : {sbp:Math.round(v.sbp), dbp:Math.round(v.dbp), t:S.t};
+  S.nibpUntil = null; S.nibpNext = S.t + (C.nibpInterval || 180);
+  updateNumerics();
+}
+
+/* ---- appearance ---- */
+function updateAppearance(){
+  let text;
+  if (S.arrest) text = 'Unresponsive. Not breathing normally. No central pulse.';
+  else { const band = C.appearance.find(b => S.sev < b.below); text = band ? band.text : ''; }
+  if (text !== S.appearance){
+    if (S.appearance != null) log('observe', 'Patient now: ' + text);
+    S.appearance = text; $('#appearance').textContent = text;
+  }
+}
+
+/* ---- log ---- */
+function log(kind, text, title){
+  const entry = {t:S.t, kind, text, title};
+  S.log.push(entry);
+  const li = h('li', {class:kind}, h('time', {text:fmt(entry.t)}), h('span', {class:'txt'}, title ? [h('b', {text:title + ': '}), text] : text));
+  const ol = $('#log'); ol.prepend(li);
+}
+
+/* ======================================================================
+   MONITOR RENDERING (sweep display)
+   ====================================================================== */
+const g = (x, mu, s, a) => { const z = (x - mu)/s; return a*Math.exp(-0.5*z*z); };
+function ecgBeat(d, rr, rh){
+  const k = clamp(Math.sqrt(rr), 0.55, 1.1), w = rh.type === 'pea' ? 2.2 : 1;
+  let v = 0;
+  if (rh.p) v += g(d, 0.07, 0.022, 0.13);
+  const q0 = 0.17;
+  v += g(d, q0, 0.008*w, -0.09) + g(d, q0 + 0.022*w, 0.009*w, 1) + g(d, q0 + 0.045*w, 0.01*w, -0.24);
+  const tMu = q0 + 0.045*w + 0.19*k;
+  v += g(d, tMu, 0.045*k, 0.28);
+  if (rh.st){ const j = q0 + 0.05*w; v += rh.st/(1 + Math.exp(-(d - j)/0.006))/(1 + Math.exp((d - tMu - 0.04)/0.025)); }
+  return v;
+}
+const plethBeat = (d, perf) => (d < 0 || d > 1.2) ? 0 : perf*(g(d, 0.13, 0.055, 1) + g(d, 0.36, 0.08, 0.32));
+const vfWave = t => (0.42*Math.sin(2*Math.PI*4.6*t) + 0.28*Math.sin(2*Math.PI*6.2*t + 1.1) + 0.16*Math.sin(2*Math.PI*3.1*t + 2.3))*(0.75 + 0.25*Math.sin(2*Math.PI*0.35*t));
+
+function makeSource(getRh, onBeat){
+  const st = {next:0, beats:[]};
+  return t => {
+    const rh = getRh();
+    if (rh.beats){
+      if (st.next < t - 2) st.next = t;
+      while (t >= st.next){
+        const base = 60/Math.max(20, rh.hr);
+        const rr = base*(rh.type === 'af' ? 0.65 + Math.random()*0.7 : 0.985 + Math.random()*0.03);
+        st.beats.push({t:st.next, rr}); if (st.beats.length > 4) st.beats.shift();
+        if (onBeat) onBeat(rh);
+        st.next += rr;
+      }
+    } else st.next = t;
+    let e = 0, p = 0;
+    if (rh.beats) for (const b of st.beats){ const d = t - b.t; if (d >= 0 && d < 1.6){ e += ecgBeat(d, b.rr, rh); if (rh.pulse) p += plethBeat(d - 0.2, rh.perf); } }
+    if (rh.type === 'vf') e = vfWave(t);
+    else if (rh.type === 'asystole') e = 0.015*Math.sin(t*2.1);
+    if (rh.type === 'af') e += 0.035*Math.sin(2*Math.PI*6.7*t) + 0.025*Math.sin(2*Math.PI*9.3*t + 1.3);
+    e += (Math.random() - 0.5)*0.012;
+    if (rh.cpr){ const c = Math.max(0, Math.sin(2*Math.PI*1.9*t)); e += 0.8*c*c; p = 0.4*c*c; }
+    const r = rh.rr > 0 ? Math.sin(2*Math.PI*(rh.rr/60)*t) : 0;
+    return [e, p, r];
+  };
+}
+
+class Sweep {
+  constructor(canvas, o){
+    this.c = canvas; this.ctx = canvas.getContext('2d'); this.o = o; this.x = 0; this.wt = 0; this.prev = [];
+    if ('ResizeObserver' in window) new ResizeObserver(() => this.resize()).observe(canvas);
+    this.resize();
+  }
+  resize(){
+    const r = this.c.getBoundingClientRect(); if (!r.width || !r.height) return;
+    this.dpr = window.devicePixelRatio || 1; this.w = r.width; this.h = r.height;
+    this.c.width = Math.round(r.width*this.dpr); this.c.height = Math.round(r.height*this.dpr);
+    this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    this.pps = this.w/(this.o.seconds || 6);
+    this.clear();
+  }
+  clear(){ this.ctx.fillStyle = this.o.bg; this.ctx.fillRect(0, 0, this.w, this.h); this.x = 0; this.prev = this.o.channels.map(() => null); }
+  erase(a, b){
+    const ctx = this.ctx; ctx.fillStyle = this.o.bg;
+    ctx.fillRect(a, 0, Math.min(b, this.w) - a, this.h);
+    if (b > this.w) ctx.fillRect(0, 0, b - this.w, this.h);
+  }
+  step(dt){
+    if (!this.w) { this.resize(); if (!this.w) return; }
+    const ctx = this.ctx, W = this.w, n = this.o.channels.length, band = this.h/n;
+    const dx = dt*this.pps, steps = Math.max(1, Math.ceil(dx*2));
+    this.erase(this.x, this.x + dx + 14);
+    const pts = this.o.channels.map(() => []);
+    for (let i = 1; i <= steps; i++){
+      const x = this.x + dx*i/steps, t = this.wt + dt*i/steps, vals = this.o.sample(t);
+      for (let c = 0; c < n; c++) pts[c].push([x, this.o.channels[c].y(vals[c], band, c*band)]);
+    }
+    ctx.lineWidth = 1.6; ctx.lineJoin = 'round';
+    for (let c = 0; c < n; c++){
+      ctx.strokeStyle = this.o.channels[c].color; ctx.beginPath();
+      let p = this.prev[c]; if (p) ctx.moveTo(p[0], p[1]);
+      for (let [x, y] of pts[c]){ if (x >= W) x -= W; if (!p || x < p[0]) ctx.moveTo(x, y); else ctx.lineTo(x, y); p = [x, y]; }
+      ctx.stroke(); this.prev[c] = p;
+    }
+    this.x = (this.x + dx) % W; this.wt += dt;
+  }
+}
+
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const MON = {sweep:null, demo:null, sound:false, audio:null, lastBeep:0};
+const UI = {view:'library', tab:'history', endArm:0};
+const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function audioCtx(){ try { MON.audio = MON.audio || new (window.AudioContext || window.webkitAudioContext)(); if (MON.audio.state === 'suspended') MON.audio.resume(); return MON.audio; } catch(e){ return null; } }
+function tone(freq, dur = 0.07, vol = 0.07, delay = 0){
+  if (!MON.sound) return; const ac = audioCtx(); if (!ac) return;
+  try {
+    const o = ac.createOscillator(), gn = ac.createGain(), t0 = ac.currentTime + delay;
+    o.type = 'sine'; o.frequency.value = freq;
+    gn.gain.setValueAtTime(vol, t0); gn.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(gn).connect(ac.destination); o.start(t0); o.stop(t0 + dur + 0.02);
+  } catch(e){}
+}
+function onBeat(){
+  if (!MON.sound || !S || !S.monitor) return;
+  const now = performance.now(); if (now - MON.lastBeep < 220) return; MON.lastBeep = now;
+  const sp = S.v && S.v.spo2 != null ? S.v.spo2 : 90;
+  tone(clamp(380 + (sp - 70)*14, 380, 820));   // pitch falls with saturation, like a real monitor
+}
+
+function initMonitors(){
+  const bg = css('--mon-bg');
+  MON.sweep = new Sweep($('#monCanvas'), {
+    bg, seconds:6,
+    sample: makeSource(currentRhythm, onBeat),
+    channels:[
+      {color:css('--mon-ecg'), y:(v, b, top) => top + b*0.62 - v*b*0.5},
+      {color:css('--mon-spo2'), y:(v, b, top) => top + b*0.8 - v*b*0.58},
+      {color:css('--mon-rr'), y:(v, b, top) => top + b*0.5 - v*b*0.28}
+    ],
+    active:() => UI.view === 'sim' && S && S.monitor && !S.paused && !S.ended
+  });
+  const demoRh = {type:'sinus', beats:true, hr:72, pulse:true, perf:1, rr:14, st:0, p:true};
+  MON.demo = new Sweep($('#demoCanvas'), {
+    bg, seconds:4, sample: makeSource(() => demoRh),
+    channels:[{color:css('--mon-ecg'), y:(v, b, top) => top + b*0.66 - v*b*0.56}],
+    active:() => UI.view === 'library' && !reducedMotion
+  });
+  if (reducedMotion) MON.demo.step(3.9);
+  let last = null;
+  const frame = ts => {
+    requestAnimationFrame(frame);
+    if (last == null){ last = ts; return; }
+    const dt = Math.min(0.1, (ts - last)/1000); last = ts;
+    for (const s of [MON.sweep, MON.demo]) if (s.o.active()) s.step(dt);
+  };
+  requestAnimationFrame(frame);
+}
+
+function updateNumerics(){
+  if (!S) return;
+  const set = (id, t) => { $(id).textContent = t; };
+  const alarm = (id, on) => $(id).classList.toggle('alarm', !!on);
+  if (!S.monitor){
+    for (const id of ['#vHR','#vSPO2','#vRR','#vT']) set(id, '--'); set('#vBP', '--/--'); set('#vBPsub', 'MAP --');
+    for (const id of ['#nHR','#nSPO2','#nBP','#nRR']) alarm(id, false);
+    return;
+  }
+  const v = S.v || vitalsNow(), A = S.arrest, jit = () => Math.round(Math.random()*2 - 1);
+  const hr = A ? (A.rhythm === 'pea' ? 42 : null) : Math.round(v.hr) + jit();
+  set('#vHR', hr == null ? '---' : hr);
+  set('#vSPO2', A ? '--' : Math.round(v.spo2));
+  set('#vRR', A ? (A.cpr ? '--' : '0') : Math.round(v.rr));
+  set('#vT', v.temp.toFixed(1));
+  if (S.nibpUntil != null){ set('#vBP', '…'); set('#vBPsub', 'Measuring'); }
+  else if (!S.nibp){ set('#vBP', '--/--'); set('#vBPsub', 'MAP --'); }
+  else if (S.nibp.fail){ set('#vBP', '--/--'); set('#vBPsub', `No reading · ${fmt(S.t - S.nibp.t)} ago`); }
+  else { const n = S.nibp; set('#vBP', `${n.sbp}/${n.dbp}`); set('#vBPsub', `MAP ${Math.round((n.sbp + 2*n.dbp)/3)} · ${fmt(S.t - n.t)} ago`); }
+  const hrA = A ? A.rhythm !== 'pea' : (hr > 130 || hr < 45);
+  const spA = A || v.spo2 < 90;
+  const bpA = S.nibp && (S.nibp.fail || S.nibp.sbp < 90);
+  const rrA = !A && (v.rr > 30 || v.rr < 8);
+  alarm('#nHR', hrA); alarm('#nSPO2', spA); alarm('#nBP', bpA); alarm('#nRR', rrA);
+  if ((hrA || spA || bpA || rrA) && MON.sound && !S.paused){
+    const now = performance.now();
+    if (now - S.alarmAt > (A ? 2000 : 5000)){ S.alarmAt = now; tone(880, 0.12, 0.06); tone(660, 0.12, 0.06, 0.16); tone(880, 0.12, 0.06, 0.32); }
+  }
+}
+function monitorOverlay(){
+  $('#monOff').hidden = !!(S && S.monitor);
+  $('#monPaused').hidden = !(S && S.paused);
+  if (S && S.monitor && MON.sweep) MON.sweep.clear();
+}
+
+/* ======================================================================
+   UI: SIMULATION VIEW
+   ====================================================================== */
+function showView(v){
+  UI.view = v;
+  for (const id of ['library','sim','debrief']) $('#view-' + id).hidden = id !== v;
+  window.scrollTo({top:0});
+}
+function startCase(c){
+  C = c; ACT = buildActions(c); S = newState(c); S.v = vitalsNow();
+  $('#ptName').textContent = c.patient.name;
+  $('#ptMeta').textContent = `${c.patient.age} ${c.patient.sex}${c.patient.weight ? ' · ' + c.patient.weight + ' kg' : ''}`;
+  $('#ptComplaint').textContent = c.card.complaint;
+  $('#triage').textContent = c.triage ? c.triage.note : '';
+  const tv = $('#triageVitals'); tv.replaceChildren();
+  for (const [k,v] of Object.entries((c.triage && c.triage.vitals) || {})) tv.append(h('div', null, h('dt', {text:k.replace('SpO2','SpO₂')}), h('dd', {text:v})));
+  $('#log').replaceChildren(); $('#arrestBanner').hidden = true;
+  for (const b of document.querySelectorAll('#speedSeg button')) b.setAttribute('aria-pressed', b.dataset.speed === '1');
+  $('#btnPause').textContent = 'Pause';
+  resetEnd();
+  showView('sim');
+  if (MON.sweep){ MON.sweep.resize(); MON.sweep.clear(); }
+  monitorOverlay(); updateNumerics(); updateAppearance();
+  log('system', `Case started. ${c.patient.name}, ${c.patient.age}, is in ${c.card.setting.toLowerCase()}. The patient is yours.`);
+  for (const t of ['history','exam','investigate','treat','decide']) $('#tab-' + t).querySelector('.dot')?.remove();
+  switchTab('history');
+  lastReal = performance.now();
+}
+function switchTab(t){
+  UI.tab = t;
+  for (const x of ['history','exam','investigate','treat','decide']){
+    const b = $('#tab-' + x); b.setAttribute('aria-selected', x === t); $('#panel-' + x).hidden = x !== t;
+    if (x === t) b.querySelector('.dot')?.remove();
+  }
+  renderTab();
+}
+function markTab(t){ if (UI.tab !== t && !$('#tab-' + t).querySelector('.dot')) $('#tab-' + t).append(h('span', {class:'dot', 'aria-hidden':'true'})); }
+function renderTab(){ ({history:renderHistory, exam:renderExam, investigate:renderInvestigate, treat:renderTreat, decide:renderDecide})[UI.tab](); }
+function refreshAfterAction(){ renderTab(); updateNumerics(); }
+
+function renderHistory(){
+  const p = $('#panel-history');
+  const tr = h('div', {class:'transcript', 'aria-live':'polite'});
+  if (!S.transcript.length) tr.append(h('p', {class:'hint', text:'Type a question, or pick one below. Answers come from the patient or whoever is with them.'}));
+  for (const m of S.transcript) tr.append(h('div', {class:'bubble ' + (m.who === 'You' ? 'you' : 'them')}, h('span', {class:'who', text:m.who}), m.text));
+  const input = h('input', {id:'askInput', type:'text', placeholder:'Ask a question, e.g. “Any allergies?”', autocomplete:'off', 'aria-label':'Ask the patient a question'});
+  const form = h('form', {class:'askform', onsubmit:e => { e.preventDefault(); const v = input.value; input.value = ''; askFree(v); setTimeout(() => $('#askInput')?.focus(), 0); }}, input, h('button', {class:'btn btn-primary', type:'submit', text:'Ask'}));
+  const chips = h('div', {class:'qchips'});
+  for (const it of C.history) chips.append(h('button', {type:'button', class:'qchip' + (count(it.id) ? ' asked' : ''), onclick:() => ask(it), text:it.q}));
+  p.replaceChildren(tr, form, h('div', {class:'group'}, h('h4', {text:'Suggested questions'}), chips));
+  tr.scrollTop = tr.scrollHeight;
+}
+function renderExam(){
+  const p = $('#panel-exam'), acts = h('div', {class:'acts'});
+  for (const e of C.exam) acts.append(h('button', {type:'button', class:'act' + (count(e.id) ? ' done' : ''), onclick:() => examine(e.id)}, h('span', {class:'t', text:e.label}), count(e.id) ? h('span', {class:'n', text:'Re-examine'}) : null));
+  const list = h('ul', {class:'feed'});
+  for (const f of S.findings) list.append(h('li', null, h('div', {class:'meta'}, h('b', {text:f.label}), h('time', {text:fmt(f.t)})), f.text));
+  p.replaceChildren(h('div', {class:'group'}, h('h4', {text:'Examine'}), acts), S.findings.length ? h('div', {class:'group'}, h('h4', {text:'Findings'}), list) : h('p', {class:'hint', text:'Findings appear here. Re-examine after treatment to see what has changed.'}));
+}
+function renderInvestigate(){
+  const p = $('#panel-investigate'), groups = {};
+  for (const inv of C.investigations) (groups[inv.group || 'Other'] = groups[inv.group || 'Other'] || []).push(inv);
+  const out = [];
+  for (const [gname, items] of Object.entries(groups)){
+    const acts = h('div', {class:'acts'});
+    for (const inv of items){
+      const pend = S.pending.some(x => x.id === inv.id);
+      acts.append(h('button', {type:'button', class:'act' + (count(inv.id) ? ' done' : ''), onclick:() => order(inv.id)}, h('span', {class:'t'}, inv.label, h('span', {class:'d', text:'Result in ~' + humanTime(inv.time || 60)})), h('span', {class:'n', text:pend ? 'Pending' : count(inv.id) ? '×' + count(inv.id) : ''})));
+    }
+    out.push(h('div', {class:'group'}, h('h4', {text:gname}), acts));
+  }
+  if (S.pending.length){
+    const ul = h('ul', {class:'feed', id:'pendingList'});
+    for (const x of S.pending) ul.append(h('li', {'data-id':x.id}, h('div', {class:'meta'}, h('b', {text:x.label}), h('time', {class:'eta', text:'ready in ' + fmt(x.ready - S.t)})), h('div', {class:'bar'}, h('i', {style:`width:${clamp((S.t - x.ordered)/(x.ready - x.ordered)*100, 0, 100)}%`}))));
+    out.push(h('div', {class:'group'}, h('h4', {text:'Pending'}), ul));
+  }
+  const res = h('ul', {class:'feed'});
+  for (const r of S.results) res.append(h('li', null, h('div', {class:'meta'}, h('b', {text:r.label}), h('time', {text:'resulted ' + fmt(r.ready)})), r.text));
+  out.push(S.results.length ? h('div', {class:'group'}, h('h4', {text:'Results'}), res) : h('p', {class:'hint', text:'Results appear here and in the event log when they are ready. Speed up time to wait for slow tests.'}));
+  p.replaceChildren(...out);
+}
+function renderTreat(){
+  const p = $('#panel-treat'), groups = {};
+  for (const a of Object.values(ACT)) (groups[a.group] = groups[a.group] || []).push(a);
+  const groupOrder = GROUP_ORDER.filter(gn => groups[gn]).concat(Object.keys(groups).filter(gn => !GROUP_ORDER.includes(gn)));
+  if (S.arrest){ groupOrder.splice(groupOrder.indexOf('Resuscitation'), 1); groupOrder.unshift('Resuscitation'); }
+  p.replaceChildren(...groupOrder.map(gn => {
+    const acts = h('div', {class:'acts'});
+    for (const a of groups[gn]){
+      const n = count(a.id);
+      let label = a.label;
+      if (a.id === 'cpr' && S.arrest && S.arrest.cpr) label = 'CPR in progress';
+      acts.append(h('button', {type:'button', class:'act' + (n ? ' done' : ''), onclick:() => perform(a.id)}, h('span', {class:'t'}, label, a.detail ? h('span', {class:'d', text:a.detail}) : null), h('span', {class:'n', text:n ? (a.once ? 'Done' : '×' + n) : ''})));
+    }
+    return h('div', {class:'group' + (gn === 'Resuscitation' && S.arrest ? ' hot' : '')}, h('h4', {text:gn}), acts);
+  }));
+}
+function renderDecide(){
+  const p = $('#panel-decide');
+  const mk = (name, list, sel) => h('fieldset', null, h('legend', {text:name === 'dx' ? 'Most likely diagnosis' : 'Disposition'}),
+    ...list.map(o => h('label', {class:'opt'}, h('input', {type:'radio', name:'pick-' + name, id:'pick-' + o.id, value:o.id, checked:sel === o.id, onchange:() => { S[name] = o.id; }}), h('span', {text:o.label}))));
+  const btn = h('button', {class:'btn btn-primary', type:'button', id:'btnSubmit', onclick:() => {
+    if (!S.dx || !S.disp){ $('#decideMsg').textContent = 'Choose a diagnosis and a disposition first.'; return; }
+    record('decision', 'Submitted diagnosis and disposition', 'decide'); endCase('submitted');
+  }}, 'Submit and end case');
+  p.replaceChildren(
+    h('p', {class:'hint', text:'Commit when the patient is stable enough to hand over. Submitting ends the case and opens the debrief.'}),
+    mk('dx', S.order.dx, S.dx), mk('disp', S.order.disp, S.disp),
+    h('div', {class:'db-actions'}, btn), h('p', {class:'hint', id:'decideMsg', 'aria-live':'polite'}));
+}
+
+function togglePause(force){
+  if (!S || S.ended) return;
+  S.paused = force == null ? !S.paused : force;
+  $('#btnPause').textContent = S.paused ? 'Resume' : 'Pause';
+  monitorOverlay();
+  if (S.paused) log('system', 'Paused.');
+  lastReal = performance.now();
+}
+function resetEnd(){ UI.endArm = 0; const b = $('#btnEnd'); b.textContent = 'End case'; b.classList.remove('confirm'); }
+
+/* ---- main loop ---- */
+let lastReal = performance.now();
+setInterval(() => {
+  const now = performance.now(), dtReal = Math.min(1.5, (now - lastReal)/1000); lastReal = now;
+  if (UI.view !== 'sim' || !S || S.ended) return;
+  if (!S.paused) tick(dtReal*S.speed);
+  if (S.ended) return;
+  $('#clock').textContent = fmt(S.t);
+  if (S.arrest) $('#arrestInfo').textContent = `${fmt(S.t - S.arrest.start)} · ${RHYTHM_NAMES[S.arrest.rhythm]}${S.arrest.cpr ? ' · CPR in progress' : ''}`;
+  const pl = document.getElementById('pendingList');
+  if (pl) for (const li of pl.children){ const x = S.pending.find(p => p.id === li.dataset.id); if (x){ li.querySelector('.eta').textContent = 'ready in ' + fmt(x.ready - S.t); li.querySelector('.bar i').style.width = clamp((S.t - x.ordered)/(x.ready - x.ordered)*100, 0, 100) + '%'; } }
+  if (UI.endArm && now > UI.endArm) resetEnd();
+}, 200);
+setInterval(() => { if (UI.view === 'sim' && S && !S.ended) updateNumerics(); }, 1000);
+
+/* ======================================================================
+   SCORING & DEBRIEF
+   ====================================================================== */
+function evaluate(){
+  const sc = C.scoring;
+  const nth = (ids, n) => { const ts = S.timeline.filter(x => ids.includes(x.id)).map(x => x.t).sort((a,b) => a - b); return ts.length >= n ? ts[n-1] : null; };
+  const item = it => {
+    const t = nth(it.anyOf, it.count || 1); let status = 'missed', earned = 0;
+    if (t != null){ if (it.within != null && t > it.within){ status = 'late'; earned = Math.round(it.points/2); } else { status = 'done'; earned = it.points; } }
+    return {...it, t, status, earned};
+  };
+  const crit = sc.critical.map(item), rec = sc.recommended.map(item);
+  const dxOk = S.dx === sc.diagnosis.correct, dxPts = dxOk ? sc.diagnosis.points : 0;
+  const dispPts = S.disp === sc.disposition.correct ? sc.disposition.points : ((sc.disposition.partial || {})[S.disp] || 0);
+  const sum = (a, k) => a.reduce((s, x) => s + (x[k] || 0), 0);
+  const max = sum(crit, 'points') + sum(rec, 'points') + sc.diagnosis.points + sc.disposition.points;
+  const earned = sum(crit, 'earned') + sum(rec, 'earned') + dxPts + dispPts;
+  const pen = sum(S.penalties, 'points');
+  const pct = clamp(Math.round((earned - pen)/max*100), 0, 100);
+  const pass = C.passMark || 80;
+  let outcome;
+  if (S.died) outcome = {label:'Patient died', tone:'crit'};
+  else if (S.arrest) outcome = {label:'Case ended during cardiac arrest', tone:'crit'};
+  else if (S.arrests) outcome = {label:'Survived a cardiac arrest', tone:'warn'};
+  else if (S.sev < 0.25) outcome = {label:'Patient stabilised', tone:'good'};
+  else if (S.sev < C.physiology.start) outcome = {label:'Improving', tone:'good'};
+  else outcome = {label:'Still unstable at handover', tone:'warn'};
+  return {crit, rec, dxOk, dxPts, dispPts, max, earned, pen, pct, pass, passed:pct >= pass && !S.died, outcome};
+}
+
+function endCase(reason){
+  if (S.ended) return;
+  S.ended = true; S.endReason = reason;
+  const v = S.arrest ? null : vitalsNow();
+  S.vlog.push({t:S.t, hr:v ? Math.round(v.hr) : null, sbp:v ? Math.round(v.sbp) : null, spo2:v ? Math.round(v.spo2) : null});
+  if (S.arrestBands.length && S.arrestBands[S.arrestBands.length-1].end == null) S.arrestBands[S.arrestBands.length-1].end = S.t;
+  const R = evaluate();
+  const attempts = store.get('resusbay.attempts', []);
+  attempts.unshift({caseId:C.id, complaint:C.card.complaint, title:C.title, date:new Date().toISOString(), score:R.pct, passed:R.passed, outcome:R.outcome.label, time:Math.round(S.t)});
+  store.set('resusbay.attempts', attempts.slice(0, 30));
+  renderDebrief(R);
+  showView('debrief');
+}
+
+const statusPill = s => s === 'done' ? h('span', {class:'pill good', text:'Done'}) : s === 'late' ? h('span', {class:'pill warn', text:'Late'}) : h('span', {class:'pill crit', text:'Missed'});
+function checklist(items){
+  return h('ul', {class:'checks'}, items.map(it => h('li', null,
+    h('div', null, h('div', null, it.label), h('div', {class:'hint'}, it.t != null ? `at ${fmt(it.t)}` : 'not done', it.within != null ? ` · target ≤ ${fmt(it.within)}` : '')),
+    h('div', {style:'text-align:right'}, statusPill(it.status), h('div', {class:'pts', text:`${it.earned}/${it.points}`})),
+    it.status !== 'done' && it.why ? h('div', {class:'why', text:it.why}) : null)));
+}
+function renderDebrief(R){
+  const dxLabel = id => (C.diagnoses.find(d => d.id === id) || {}).label || 'None chosen';
+  const dispLabel = id => (C.dispositions.find(d => d.id === id) || {}).label || 'None chosen';
+  const markers = R.crit.filter(x => x.t != null).map(x => ({t:x.t, label:x.label})).sort((a,b) => a.t - b.t);
+  const sec = h('div', {class:'debrief'},
+    h('div', {class:'db-head'},
+      h('div', null, h('p', {class:'eyebrow', text:'Debrief'}), h('h1', {text:C.title}),
+        h('p', {class:'sub'}, `${C.patient.name}, ${C.patient.age} ${C.patient.sex} · ${C.card.complaint} · ${fmt(S.t)} of simulated time`),
+        h('div', {class:'chips', style:'margin-top:10px'}, h('span', {class:'pill ' + R.outcome.tone, text:R.outcome.label}), h('span', {class:'pill ' + (R.passed ? 'good' : 'warn'), text:R.passed ? `Passed (≥ ${R.pass}%)` : `Below pass mark of ${R.pass}%`}))),
+      h('div', {class:'scorebox'}, h('div', {class:'score', text:R.pct + '%'}), h('div', {class:'hint', text:`${R.earned} points − ${R.pen} penalty of ${R.max}`}))),
+    h('div', {class:'db-actions'},
+      h('button', {class:'btn btn-primary', type:'button', onclick:() => startCase(C), text:'Retry this case'}),
+      h('button', {class:'btn', type:'button', onclick:() => { renderLibrary(); showView('library'); }, text:'Case library'}),
+      h('button', {class:'btn', type:'button', id:'btnCopy', onclick:() => copySummary(R), text:'Copy result for teacher'})),
+    h('div', {id:'copyFallback', hidden:true}),
+    h('div', {class:'db-grid'},
+      h('div', {class:'card'}, h('h2', {text:'Critical actions'}), checklist(R.crit),
+        h('h3', {text:'Recommended actions'}), checklist(R.rec)),
+      h('div', {class:'card'},
+        h('h2', {text:'Decisions'}),
+        h('dl', {class:'kv'},
+          h('dt', {text:'Your diagnosis'}), h('dd', null, dxLabel(S.dx), ' ', R.dxOk ? h('span', {class:'pill good', text:'Correct'}) : h('span', {class:'pill crit', text:'Incorrect'})),
+          h('dt', {text:'Correct'}), h('dd', {text:dxLabel(C.scoring.diagnosis.correct)}),
+          h('dt', {text:'Your disposition'}), h('dd', null, dispLabel(S.disp), ' ', R.dispPts === C.scoring.disposition.points ? h('span', {class:'pill good', text:'Correct'}) : R.dispPts ? h('span', {class:'pill warn', text:'Partly'}) : h('span', {class:'pill crit', text:'Incorrect'})),
+          h('dt', {text:'Best disposition'}), h('dd', {text:dispLabel(C.scoring.disposition.correct)})),
+        h('h3', {text:'Penalties'}),
+        S.penalties.length ? h('ul', {class:'checks'}, S.penalties.map(p => h('li', null, h('div', null, p.why, h('div', {class:'hint', text:'at ' + fmt(p.t)})), h('div', {class:'pts', text:'−' + p.points})))) : h('p', {class:'hint', text:'No penalties.'}),
+        S.notes.length ? [h('h3', {text:'Notes on your choices'}), h('ul', {class:'checks'}, S.notes.map(n => h('li', null, h('div', null, h('b', {text:n.label}), h('div', {class:'why', text:n.text})))))] : null)),
+    h('div', {class:'db-grid'},
+      h('div', {class:'card'}, h('h2', {text:'Vital signs'}), h('p', {class:'hint', text:'Recorded every 10 seconds of simulated time. Shaded areas are cardiac arrest. Numbered lines are critical actions. Hover or tap for values.'}), trendCharts(markers)),
+      h('div', {class:'card'}, h('h2', {text:'Your timeline'}), h('div', {class:'table-wrap'}, h('table', null, h('thead', null, h('tr', null, h('th', {text:'Time'}), h('th', {text:'Action'}))), h('tbody', null, S.timeline.map(x => h('tr', null, h('td', {class:'num', text:fmt(x.t)}), h('td', {text:x.label})))))))),
+    h('div', {class:'card prose'}, h('h2', {text:'Teaching points'}), h('ul', null, C.teaching.map(t => h('li', {text:t}))),
+      C.references.length ? [h('h3', {text:'References'}), h('ul', null, C.references.map(r => h('li', {class:'hint', text:r})))] : null)
+  );
+  $('#view-debrief').replaceChildren(sec);
+}
+
+function trendCharts(markers){
+  const data = S.vlog, tEnd = Math.max(60, S.t);
+  const W = 640, H = 112, L = 40, R = 12, T = 12, B = 20;
+  const X = t => L + (t/tEnd)*(W - L - R);
+  const specs = [{k:'hr', name:'Heart rate', unit:'bpm', lo:40, hi:160}, {k:'sbp', name:'Systolic BP', unit:'mmHg', lo:40, hi:160}, {k:'spo2', name:'SpO₂', unit:'%', lo:70, hi:100}];
+  for (const s of specs){
+    const vals = data.map(d => d[s.k]).filter(v => v != null);
+    if (vals.length){ s.lo = Math.min(s.lo, Math.floor((Math.min(...vals) - 5)/10)*10); s.hi = Math.max(s.hi, Math.ceil((Math.max(...vals) + 5)/10)*10); }
+    if (s.k === 'spo2') s.hi = 100;
+  }
+  const stepMin = [1, 2, 5, 10, 15, 30].find(m => tEnd/60/m <= 8) || 60;
+  const NS = 'http://www.w3.org/2000/svg';
+  const sv = (tag, attrs, ...kids) => { const el = document.createElementNS(NS, tag); for (const [k,v] of Object.entries(attrs || {})) el.setAttribute(k, v); for (const k of kids) if (k != null) el.append(k.nodeType ? k : document.createTextNode(String(k))); return el; };
+  const wrap = h('div', {style:'display:flex;flex-direction:column;gap:10px'});
+  const hovers = [];
+  specs.forEach((s, si) => {
+    const Y = v => T + (1 - (v - s.lo)/(s.hi - s.lo))*(H - T - B);
+    const svg = sv('svg', {viewBox:`0 0 ${W} ${H}`, role:'img', 'aria-label':`${s.name} over time`});
+    const grid = sv('g', {class:'grid'});
+    for (const v of [s.lo, Math.round((s.lo + s.hi)/2), s.hi]){ grid.append(sv('line', {x1:L, x2:W - R, y1:Y(v), y2:Y(v)})); svg.append(sv('text', {x:L - 6, y:Y(v) + 4, 'text-anchor':'end'}, v)); }
+    for (let m = 0; m*60 <= tEnd; m += stepMin) svg.append(sv('text', {x:X(m*60), y:H - 4, 'text-anchor':'middle'}, m + 'm'));
+    svg.prepend(grid);
+    for (const b of S.arrestBands) svg.append(sv('rect', {class:'band', x:X(b.start), y:T, width:Math.max(2, X(b.end ?? S.t) - X(b.start)), height:H - T - B}));
+    let d = '', pen = false, lastPt = null;
+    for (const p of data){ if (p[s.k] == null){ pen = false; continue; } d += (pen ? 'L' : 'M') + X(p.t).toFixed(1) + ' ' + Y(p[s.k]).toFixed(1); pen = true; lastPt = p; }
+    if (d) svg.append(sv('path', {class:'series', d}));
+    if (lastPt) svg.append(sv('circle', {class:'end', cx:X(lastPt.t), cy:Y(lastPt[s.k]), r:4}));
+    const mk = sv('g', {class:'mk'});
+    let lastX = -99, row = 0;
+    markers.forEach((m, i) => {
+      mk.append(sv('line', {x1:X(m.t), x2:X(m.t), y1:T, y2:H - B}));
+      row = X(m.t) - lastX < 16 ? row + 1 : 0; lastX = X(m.t);   // stack markers that would overlap
+      const cy = T + (row % 4)*16;
+      if (si === 0){ mk.append(sv('circle', {cx:X(m.t), cy, r:7})); mk.append(sv('text', {x:X(m.t), y:cy}, i + 1)); }
+    });
+    svg.append(mk);
+    const hv = sv('g', {class:'hover', visibility:'hidden'}); const hl = sv('line', {y1:T, y2:H - B}); const hc = sv('circle', {r:4}); hv.append(hl, hc); svg.append(hv);
+    const out = h('output', {text:''});
+    const fig = h('figure', {class:'chart'}, h('figcaption', null, h('span', null, h('b', {text:s.name}), ' ', h('span', {class:'muted', text:s.unit})), out), svg);
+    hovers.push({svg, hv, hl, hc, out, s, Y});
+    wrap.append(fig);
+  });
+  const show = (clientX, svg) => {
+    const r = svg.getBoundingClientRect(); const x = (clientX - r.left)/r.width*W;
+    const t = clamp((x - L)/(W - L - R)*tEnd, 0, tEnd);
+    let best = null; for (const p of data) if (!best || Math.abs(p.t - t) < Math.abs(best.t - t)) best = p;
+    if (!best) return;
+    for (const o of hovers){
+      const val = best[o.s.k];
+      o.hv.setAttribute('visibility', 'visible'); o.hl.setAttribute('x1', X(best.t)); o.hl.setAttribute('x2', X(best.t));
+      if (val == null){ o.hc.setAttribute('visibility', 'hidden'); o.out.textContent = `${fmt(best.t)} · no reading`; }
+      else { o.hc.setAttribute('visibility', 'visible'); o.hc.setAttribute('cx', X(best.t)); o.hc.setAttribute('cy', o.Y(val)); o.out.textContent = `${fmt(best.t)} · ${val} ${o.s.unit}`; }
+    }
+  };
+  const hide = () => { for (const o of hovers){ o.hv.setAttribute('visibility', 'hidden'); o.out.textContent = ''; } };
+  for (const o of hovers){ o.svg.addEventListener('pointermove', e => show(e.clientX, o.svg)); o.svg.addEventListener('pointerleave', hide); }
+  if (markers.length) wrap.append(h('ol', {class:'marks'}, markers.map((m, i) => h('li', null, h('b', {text:i + 1}), h('time', {text:fmt(m.t)}), ' ', m.label))));
+  const tbl = h('details', null, h('summary', {text:'Show values as a table'}), h('div', {class:'table-wrap'}, h('table', null,
+    h('thead', null, h('tr', null, h('th', {text:'Time'}), h('th', {text:'HR'}), h('th', {text:'SBP'}), h('th', {text:'SpO₂'}))),
+    h('tbody', null, data.filter((_, i) => i % 3 === 0 || i === data.length - 1).map(p => h('tr', null, h('td', {class:'num', text:fmt(p.t)}), h('td', {class:'num', text:p.hr ?? '—'}), h('td', {class:'num', text:p.sbp ?? '—'}), h('td', {class:'num', text:p.spo2 ?? '—'})))))));
+  wrap.append(tbl);
+  return wrap;
+}
+
+function copySummary(R){
+  const lines = [
+    `Resus Bay debrief: ${C.title}`,
+    `Patient: ${C.patient.name}, ${C.patient.age} ${C.patient.sex} (case id ${C.id})`,
+    `Date: ${new Date().toLocaleString()}`,
+    `Score: ${R.pct}% (pass mark ${R.pass}%) · ${R.passed ? 'PASSED' : 'NOT YET PASSED'}`,
+    `Outcome: ${R.outcome.label} · simulated time ${fmt(S.t)}`,
+    '', 'Critical actions:',
+    ...R.crit.map(x => `  [${x.status.toUpperCase()}] ${x.label}${x.t != null ? ' at ' + fmt(x.t) : ''}`),
+    'Recommended actions:',
+    ...R.rec.map(x => `  [${x.status.toUpperCase()}] ${x.label}${x.t != null ? ' at ' + fmt(x.t) : ''}`),
+    'Penalties:', ...(S.penalties.length ? S.penalties.map(p => `  -${p.points} at ${fmt(p.t)}: ${p.why}`) : ['  none']),
+    `Diagnosis: ${(C.diagnoses.find(d => d.id === S.dx) || {}).label || 'none'} (${R.dxOk ? 'correct' : 'incorrect'})`,
+    `Disposition: ${(C.dispositions.find(d => d.id === S.disp) || {}).label || 'none'}`,
+    '', 'Timeline:', ...S.timeline.map(x => `  ${fmt(x.t)}  ${x.label}`)
+  ];
+  const text = lines.join('\n');
+  const fallback = () => { const box = $('#copyFallback'); box.hidden = false; const ta = h('textarea', {class:'copybox', readonly:true, 'aria-label':'Result summary'}); ta.value = text; box.replaceChildren(h('p', {class:'hint', text:'Copy this text and send it to your teacher:'}), ta); ta.focus(); ta.select(); };
+  const btn = $('#btnCopy');
+  try {
+    navigator.clipboard.writeText(text).then(() => { btn.textContent = 'Copied'; setTimeout(() => btn.textContent = 'Copy result for teacher', 2000); }, fallback);
+  } catch(e){ fallback(); }
+}
+
+/* ======================================================================
+   LIBRARY
+   ====================================================================== */
+const LIB = {cases:[]};
+function addCase(c, source){
+  normalizeCase(c);
+  const i = LIB.cases.findIndex(x => x.c.id === c.id);
+  if (i >= 0) LIB.cases[i] = {c, source}; else LIB.cases.push({c, source});
+}
+function renderLibrary(){
+  const grid = $('#caseGrid'); grid.replaceChildren();
+  for (const {c, source} of LIB.cases){
+    grid.append(h('article', {class:'case'},
+      h('div', {class:'chips'}, h('span', {class:'chip', text:c.card.discipline}), h('span', {class:'chip', text:c.card.difficulty}), h('span', {class:'chip', text:'~' + c.card.minutes + ' min'}), source !== 'Built-in' ? h('span', {class:'chip src', text:source}) : null),
+      h('h3', {text:c.card.complaint}),
+      h('p', {class:'who', text:`${c.patient.name}, ${c.patient.age} ${c.patient.sex} · ${c.card.setting}`}),
+      h('div', {class:'foot'}, h('span', {class:'hint', text:'Diagnosis hidden until debrief'}), h('button', {class:'btn btn-primary', type:'button', onclick:() => startCase(c), text:'Start case'}))));
+  }
+  const at = store.get('resusbay.attempts', []), box = $('#attempts');
+  if (!at.length){ box.replaceChildren(h('p', {class:'empty', text:'No attempts yet. Your scores are saved in this browser after each debrief.'})); return; }
+  box.replaceChildren(h('div', {class:'table-wrap'}, h('table', null,
+    h('thead', null, h('tr', null, ['Date','Case','Outcome','Sim time','Score',''].map(t => h('th', {text:t})))),
+    h('tbody', null, at.slice(0, 10).map(a => h('tr', null,
+      h('td', {class:'num', text:new Date(a.date).toLocaleDateString(undefined, {day:'numeric', month:'short'}) + ' ' + new Date(a.date).toLocaleTimeString(undefined, {hour:'2-digit', minute:'2-digit'})}),
+      h('td', {text:a.complaint}), h('td', {text:a.outcome}), h('td', {class:'num', text:fmt(a.time)}), h('td', {class:'num', text:a.score + '%'}),
+      h('td', null, h('span', {class:'pill ' + (a.passed ? 'good' : 'warn'), text:a.passed ? 'Passed' : 'Not yet'}))))))));
+}
+function showImportMsg(ok, text){ const m = $('#importMsg'); m.hidden = false; m.className = 'msg ' + (ok ? 'ok' : 'err'); m.textContent = text; }
+
+async function loadFolderCases(){
+  try {
+    const r = await fetch('cases/index.json', {cache:'no-store'}); if (!r.ok) return;
+    const idx = await r.json();
+    for (const f of idx.cases || []){
+      try { const c = await (await fetch('cases/' + f, {cache:'no-store'})).json(); if (!validateCase(c).length) addCase(c, 'Case folder'); } catch(e){}
+    }
+    if (UI.view === 'library') renderLibrary();
+  } catch(e){ /* opened from disk: no folder cases, built-ins and imports still work */ }
+}
+
+/* ======================================================================
+   WIRING
+   ====================================================================== */
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (b) perform(b.dataset.act);
+});
+for (const t of ['history','exam','investigate','treat','decide']) $('#tab-' + t).addEventListener('click', () => switchTab(t));
+$('#speedSeg').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b || !S) return;
+  S.speed = Number(b.dataset.speed);
+  for (const x of document.querySelectorAll('#speedSeg button')) x.setAttribute('aria-pressed', x === b);
+});
+$('#btnPause').addEventListener('click', () => togglePause());
+$('#btnResume').addEventListener('click', () => togglePause(false));
+$('#btnSound').addEventListener('click', () => {
+  MON.sound = !MON.sound; if (MON.sound) audioCtx();
+  $('#btnSound').textContent = MON.sound ? 'Sound on' : 'Sound off'; $('#btnSound').setAttribute('aria-pressed', MON.sound);
+});
+$('#btnNibp').addEventListener('click', () => { if (S && S.monitor && S.nibpUntil == null && !S.ended){ startNibp(); log('system', 'NIBP cycling.'); } });
+$('#btnEnd').addEventListener('click', () => {
+  if (!S || S.ended) return;
+  if (!UI.endArm){ UI.endArm = performance.now() + 4000; const b = $('#btnEnd'); b.textContent = 'Confirm: end now'; b.classList.add('confirm'); return; }
+  resetEnd(); record('end', 'Ended the case early', 'decide'); endCase('ended');
+});
+$('#brandHome').addEventListener('click', () => {
+  if (UI.view === 'sim' && S && !S.ended){ togglePause(true); log('system', 'Left the bay. The case is paused; start it again from the library to restart.'); }
+  renderLibrary(); showView('library');
+});
+$('#importFile').addEventListener('change', async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  try {
+    const c = JSON.parse(await f.text()); const errs = validateCase(c);
+    if (errs.length) return showImportMsg(false, `Could not import ${f.name}: ${errs.join(' ')}`);
+    addCase(c, 'Imported');
+    const saved = store.get('resusbay.imported', []).filter(x => x.id !== c.id); saved.push(c); store.set('resusbay.imported', saved);
+    showImportMsg(true, `Imported “${c.card.complaint}”. It is saved in this browser.`);
+    renderLibrary();
+  } catch(err){ showImportMsg(false, `Could not read ${f.name}: it is not valid JSON (${err.message}).`); }
+});
+
+for (const c of BUILTIN_CASES) addCase(c, 'Built-in');
+for (const c of store.get('resusbay.imported', [])) if (!validateCase(c).length) addCase(c, 'Imported');
+renderLibrary();
+initMonitors();
+loadFolderCases();
+</script>
+</body>
+</html>
