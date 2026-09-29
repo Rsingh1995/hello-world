@@ -1,0 +1,649 @@
+{
+  "id": "anaphylaxis-food",
+  "title": "Anaphylaxis (food-triggered)",
+  "card": {
+    "complaint": "Lip swelling, rash and breathlessness 15 minutes after lunch",
+    "discipline": "Emergency medicine",
+    "setting": "Emergency department",
+    "difficulty": "Core",
+    "minutes": 10
+  },
+  "patient": {
+    "name": "Arjun Mehta",
+    "age": 24,
+    "sex": "M",
+    "weight": 70
+  },
+  "triage": {
+    "note": "Arrived by taxi with a friend. Ate a cashew curry at a restaurant 15 minutes ago. Itchy rash, swollen lips, “throat feels tight”, wheezy and lightheaded.",
+    "vitals": {
+      "HR": "128",
+      "BP": "86/50",
+      "RR": "28",
+      "SpO2": "91% air",
+      "Temp": "37.1",
+      "GCS": "15"
+    }
+  },
+  "physiology": {
+    "start": 0.45,
+    "rate": 0.07,
+    "recovery": 0.06,
+    "rhythm": {
+      "type": "sinus"
+    },
+    "best": {
+      "hr": 84,
+      "sbp": 122,
+      "dbp": 76,
+      "rr": 16,
+      "spo2": 98,
+      "temp": 37
+    },
+    "initial": {
+      "hr": 128,
+      "sbp": 86,
+      "dbp": 50,
+      "rr": 28,
+      "spo2": 91,
+      "temp": 37.1
+    },
+    "worst": {
+      "hr": 152,
+      "sbp": 58,
+      "dbp": 30,
+      "rr": 38,
+      "spo2": 78,
+      "temp": 37.1
+    }
+  },
+  "arrest": {
+    "rhythm": "pea",
+    "requireAdrenaline": true,
+    "reversibleBy": [
+      "fluid_bolus"
+    ],
+    "roscSeverity": 0.8
+  },
+  "ivAdrenalineHarm": "Never give 1 mg of 1 mg/mL adrenaline as an IV bolus to a patient with a pulse: it can cause severe hypertension, VT/VF and myocardial ischaemia. In anaphylaxis IV adrenaline is given only as a titrated infusion by experienced staff.",
+  "speech": {
+    "impairedAbove": 0.8,
+    "impairedText": "(Hoarse and gasping. He can only nod or shake his head.)"
+  },
+  "appearance": [
+    {
+      "below": 0.15,
+      "text": "Settled. Talking in full sentences. Hives fading."
+    },
+    {
+      "below": 0.35,
+      "text": "Anxious but improving. Voice clearer, a little wheeze."
+    },
+    {
+      "below": 0.6,
+      "text": "Flushed with widespread hives and swollen lips. Audible wheeze, speaking in short phrases."
+    },
+    {
+      "below": 0.85,
+      "text": "Pale and clammy. Hoarse voice, stridor, getting drowsy."
+    },
+    {
+      "below": 1.01,
+      "text": "Grey, barely rousable, gasping."
+    }
+  ],
+  "history": [
+    {
+      "id": "h_onset",
+      "q": "What happened?",
+      "keywords": [
+        "what happen",
+        "what’s happen",
+        "what's happen",
+        "how did",
+        "start",
+        "began",
+        "onset",
+        "brings you",
+        "came in"
+      ],
+      "a": "I was eating lunch… a cashew curry. About 15 minutes later my lips started tingling, then this rash, and now my throat feels tight. I feel dizzy."
+    },
+    {
+      "id": "h_allergy",
+      "q": "Do you have any allergies?",
+      "keywords": [
+        "allerg",
+        "react"
+      ],
+      "a": "I’m allergic to peanuts. I had hives once as a kid. I didn’t know cashews could do this."
+    },
+    {
+      "id": "h_pen",
+      "q": "Do you carry an adrenaline auto-injector?",
+      "keywords": [
+        "epipen",
+        "epi-pen",
+        "auto-inject",
+        "autoinject",
+        "injector",
+        "pen"
+      ],
+      "a": "I was given one years ago. It expired and I stopped carrying it."
+    },
+    {
+      "id": "h_breath",
+      "q": "Is your breathing or swallowing affected?",
+      "keywords": [
+        "breath",
+        "throat",
+        "swallow",
+        "wheez",
+        "voice",
+        "chest"
+      ],
+      "a": "My throat’s tight and it’s hard to swallow. My chest feels wheezy."
+    },
+    {
+      "id": "h_asthma",
+      "q": "Do you have asthma?",
+      "keywords": [
+        "asthma",
+        "inhaler",
+        "lung"
+      ],
+      "a": "Mild asthma. I use a blue inhaler maybe once a month."
+    },
+    {
+      "id": "h_meds",
+      "q": "Do you take any medicines?",
+      "keywords": [
+        "medic",
+        "tablet",
+        "drug",
+        "taking",
+        "beta"
+      ],
+      "a": "Just the salbutamol inhaler. Nothing else."
+    },
+    {
+      "id": "h_gi",
+      "q": "Any vomiting, tummy pain or fainting?",
+      "keywords": [
+        "vomit",
+        "nause",
+        "abdom",
+        "stomach",
+        "tummy",
+        "faint",
+        "dizz",
+        "collapse"
+      ],
+      "a": "I feel sick and crampy. I nearly fainted walking in."
+    },
+    {
+      "id": "h_social",
+      "q": "Any alcohol, exercise or smoking today?",
+      "keywords": [
+        "alcohol",
+        "drink",
+        "beer",
+        "smok",
+        "exercis"
+      ],
+      "a": "I had one beer with lunch. I don’t smoke."
+    },
+    {
+      "id": "h_friend",
+      "q": "Ask the friend what they saw",
+      "source": "Friend",
+      "keywords": [
+        "friend",
+        "saw",
+        "witness",
+        "collateral"
+      ],
+      "a": "His lips swelled up really fast and he kept coughing. In the taxi he looked like he was going to pass out."
+    }
+  ],
+  "exam": [
+    {
+      "id": "e_airway",
+      "label": "Airway",
+      "text": "Lips and tongue swollen. Hoarse voice, soft inspiratory stridor. Managing secretions.",
+      "variants": [
+        {
+          "if": {
+            "severityBelow": 0.25
+          },
+          "text": "Lip swelling reducing. No stridor. Voice normal."
+        },
+        {
+          "if": {
+            "severityAbove": 0.85
+          },
+          "text": "Marked tongue swelling, loud stridor, pooling secretions. The airway is at risk."
+        }
+      ]
+    },
+    {
+      "id": "e_breathing",
+      "label": "Breathing",
+      "text": "Widespread expiratory wheeze with reduced air entry at the bases. Using accessory muscles.",
+      "variants": [
+        {
+          "if": {
+            "severityBelow": 0.25
+          },
+          "text": "Occasional wheeze only. Good air entry bilaterally."
+        }
+      ]
+    },
+    {
+      "id": "e_circ",
+      "label": "Circulation",
+      "text": "Weak, rapid radial pulse. Capillary refill 4 s. Cool peripheries.",
+      "variants": [
+        {
+          "if": {
+            "severityBelow": 0.25
+          },
+          "text": "Warm peripheries, capillary refill under 2 s, good-volume pulse."
+        }
+      ]
+    },
+    {
+      "id": "e_disability",
+      "label": "Disability",
+      "text": "GCS 15, anxious. Pupils equal and reactive.",
+      "variants": [
+        {
+          "if": {
+            "severityAbove": 0.8
+          },
+          "text": "GCS 12 (E3 V4 M5). Drowsy."
+        }
+      ]
+    },
+    {
+      "id": "e_skin",
+      "label": "Exposure / skin",
+      "text": "Widespread raised urticarial wheals on the trunk and arms, facial flushing. No sting marks."
+    },
+    {
+      "id": "e_abdo",
+      "label": "Abdomen",
+      "text": "Soft, mild diffuse tenderness, no guarding."
+    }
+  ],
+  "investigations": [
+    {
+      "id": "i_cbg",
+      "group": "Bedside",
+      "label": "Capillary glucose",
+      "time": 60,
+      "text": "6.2 mmol/L (112 mg/dL)."
+    },
+    {
+      "id": "i_vbg",
+      "group": "Bedside",
+      "label": "Venous blood gas",
+      "time": 180,
+      "text": "pH 7.31, pCO₂ 44 mmHg, HCO₃⁻ 20 mmol/L, lactate 3.8 mmol/L, K⁺ 3.9 mmol/L.",
+      "variants": [
+        {
+          "if": {
+            "severityBelow": 0.25
+          },
+          "text": "pH 7.38, pCO₂ 40 mmHg, HCO₃⁻ 23 mmol/L, lactate 1.9 mmol/L, K⁺ 3.8 mmol/L."
+        }
+      ]
+    },
+    {
+      "id": "i_ecg",
+      "group": "Bedside",
+      "label": "12-lead ECG",
+      "time": 90,
+      "text": "Sinus tachycardia. Normal axis. No ST changes."
+    },
+    {
+      "id": "i_tryptase",
+      "group": "Laboratory",
+      "label": "Mast cell tryptase (timed)",
+      "time": 60,
+      "text": "Sample taken and labelled with the time. Result in 24–48 h. Repeat at 1–2 h and at ≥ 24 h or at allergy follow-up."
+    },
+    {
+      "id": "i_fbc",
+      "group": "Laboratory",
+      "label": "Full blood count",
+      "time": 900,
+      "text": "Hb 15.2 g/dL, WCC 11.4 ×10⁹/L, platelets 262 ×10⁹/L."
+    },
+    {
+      "id": "i_ue",
+      "group": "Laboratory",
+      "label": "Urea & electrolytes",
+      "time": 900,
+      "text": "Na⁺ 139, K⁺ 3.9 mmol/L, creatinine 84 µmol/L (0.95 mg/dL)."
+    },
+    {
+      "id": "i_cxr",
+      "group": "Imaging",
+      "label": "Chest X-ray (portable)",
+      "time": 600,
+      "text": "Mild hyperinflation. No consolidation, no pneumothorax."
+    }
+  ],
+  "interventions": [
+    {
+      "id": "call_help",
+      "group": "Help & referral",
+      "label": "Call for help",
+      "detail": "Senior / resus team",
+      "once": true,
+      "say": "Nurse: “Resus team called. The senior is on the way.”"
+    },
+    {
+      "id": "call_anaes",
+      "group": "Help & referral",
+      "label": "Call anaesthetist",
+      "detail": "Airway at risk",
+      "once": true,
+      "say": "Nurse: “Anaesthetist is coming, about 5 minutes.”"
+    },
+    {
+      "id": "position",
+      "group": "Airway & breathing",
+      "label": "Lie flat, legs raised",
+      "detail": "Sit up only if breathing is worse lying flat",
+      "once": true,
+      "effects": {
+        "vitals": {
+          "sbp": 6,
+          "dbp": 3
+        },
+        "onset": 30
+      },
+      "say": "Nurse: “Laid flat with his legs up.”"
+    },
+    {
+      "id": "o2",
+      "group": "Airway & breathing",
+      "label": "High-flow oxygen",
+      "detail": "15 L/min via non-rebreather mask",
+      "once": true,
+      "effects": {
+        "vitals": {
+          "spo2": 5
+        },
+        "onset": 60
+      },
+      "say": "Nurse: “Non-rebreather on at 15 litres.”"
+    },
+    {
+      "id": "salbutamol",
+      "group": "Airway & breathing",
+      "label": "Salbutamol 5 mg nebulised",
+      "detail": "For persisting bronchospasm",
+      "max": 3,
+      "effects": {
+        "vitals": {
+          "spo2": 2,
+          "rr": -3
+        },
+        "onset": 300,
+        "duration": 1200
+      },
+      "feedback": "Bronchodilators help persisting wheeze but do not replace IM adrenaline."
+    },
+    {
+      "id": "adr_im",
+      "group": "Medications",
+      "label": "Adrenaline 0.5 mg IM",
+      "detail": "0.5 mL of 1 mg/mL (1:1000), anterolateral thigh. Repeat after 5 min if no better",
+      "max": 4,
+      "effects": {
+        "severity": -0.3,
+        "onset": 120,
+        "progression": {
+          "factor": 0,
+          "duration": 300
+        }
+      },
+      "say": "Nurse: “Adrenaline 0.5 mg IM given into the thigh.”"
+    },
+    {
+      "id": "adr_infusion",
+      "group": "Medications",
+      "label": "Adrenaline IV infusion",
+      "detail": "Refractory anaphylaxis only; senior / critical-care led",
+      "requires": [
+        "iv_access"
+      ],
+      "once": true,
+      "effects": {
+        "severity": -0.25,
+        "onset": 300,
+        "progression": {
+          "factor": 0
+        }
+      },
+      "feedback": "Appropriate for refractory anaphylaxis (ABC problems persisting after two doses of IM adrenaline), with critical-care support and continuous monitoring."
+    },
+    {
+      "id": "fluid_bolus",
+      "group": "Circulation",
+      "label": "Crystalloid 500 mL IV bolus",
+      "detail": "Hartmann’s or 0.9% saline, rapid; repeat as needed",
+      "requires": [
+        "iv_access"
+      ],
+      "max": 4,
+      "effects": {
+        "severity": -0.08,
+        "onset": 300,
+        "vitals": {
+          "sbp": 10,
+          "dbp": 5,
+          "hr": -5
+        },
+        "duration": 900
+      },
+      "say": "Nurse: “500 mL running in fast.”"
+    },
+    {
+      "id": "chlorphenamine",
+      "group": "Medications",
+      "label": "Chlorphenamine 10 mg IV",
+      "requires": [
+        "iv_access"
+      ],
+      "once": true,
+      "feedback": "Antihistamines treat skin features only. They do not treat airway, breathing or circulation problems and are not part of initial resuscitation (RCUK 2021). A non-sedating oral antihistamine is preferred once stable."
+    },
+    {
+      "id": "hydrocortisone",
+      "group": "Medications",
+      "label": "Hydrocortisone 200 mg IV",
+      "requires": [
+        "iv_access"
+      ],
+      "once": true,
+      "feedback": "Routine corticosteroids are no longer advised in the emergency treatment of anaphylaxis (RCUK 2021). Consider them only after initial resuscitation, e.g. for refractory reactions or ongoing asthma or shock."
+    }
+  ],
+  "diagnoses": [
+    {
+      "id": "dx_anaph",
+      "label": "Anaphylaxis (food-triggered)"
+    },
+    {
+      "id": "dx_angio",
+      "label": "Isolated angioedema (ACE inhibitor / hereditary)"
+    },
+    {
+      "id": "dx_asthma",
+      "label": "Acute severe asthma"
+    },
+    {
+      "id": "dx_septic",
+      "label": "Septic shock"
+    },
+    {
+      "id": "dx_vaso",
+      "label": "Vasovagal syncope"
+    },
+    {
+      "id": "dx_panic",
+      "label": "Panic attack"
+    }
+  ],
+  "dispositions": [
+    {
+      "id": "disp_home",
+      "label": "Discharge home now with oral antihistamines"
+    },
+    {
+      "id": "disp_obs",
+      "label": "Observe (≥ 6–12 h); discharge with 2 adrenaline auto-injectors, training, written plan and allergy referral"
+    },
+    {
+      "id": "disp_icu",
+      "label": "Admit to ICU"
+    },
+    {
+      "id": "disp_ward",
+      "label": "Admit to general ward for IV steroids"
+    }
+  ],
+  "scoring": {
+    "critical": [
+      {
+        "id": "c_adr",
+        "label": "IM adrenaline given",
+        "anyOf": [
+          "adr_im"
+        ],
+        "within": 300,
+        "points": 30,
+        "why": "IM adrenaline is the first-line treatment. Give it as soon as anaphylaxis is recognised; delay is associated with death."
+      },
+      {
+        "id": "c_o2",
+        "label": "High-flow oxygen",
+        "anyOf": [
+          "o2"
+        ],
+        "within": 300,
+        "points": 10,
+        "why": "Hypoxaemia with airway and breathing compromise."
+      },
+      {
+        "id": "c_fluid",
+        "label": "IV fluid bolus for hypotension",
+        "anyOf": [
+          "fluid_bolus"
+        ],
+        "within": 600,
+        "points": 10,
+        "why": "Anaphylactic shock is distributive; large volumes of crystalloid may be needed."
+      },
+      {
+        "id": "c_mon",
+        "label": "Monitoring attached",
+        "anyOf": [
+          "monitor"
+        ],
+        "within": 180,
+        "points": 5,
+        "why": "Continuous ECG, SpO₂ and BP are needed to judge the response to treatment."
+      }
+    ],
+    "recommended": [
+      {
+        "id": "r_help",
+        "label": "Called for help early",
+        "anyOf": [
+          "call_help",
+          "call_anaes"
+        ],
+        "points": 5
+      },
+      {
+        "id": "r_iv",
+        "label": "IV access obtained",
+        "anyOf": [
+          "iv_access"
+        ],
+        "points": 4
+      },
+      {
+        "id": "r_allergy",
+        "label": "Asked about allergies",
+        "anyOf": [
+          "h_allergy"
+        ],
+        "points": 4
+      },
+      {
+        "id": "r_asthma",
+        "label": "Identified asthma (risk factor for severe reactions)",
+        "anyOf": [
+          "h_asthma"
+        ],
+        "points": 3
+      },
+      {
+        "id": "r_airway",
+        "label": "Examined the airway",
+        "anyOf": [
+          "e_airway"
+        ],
+        "points": 3
+      },
+      {
+        "id": "r_pos",
+        "label": "Positioned flat with legs raised",
+        "anyOf": [
+          "position"
+        ],
+        "points": 3
+      },
+      {
+        "id": "r_tryptase",
+        "label": "Sent a timed mast cell tryptase",
+        "anyOf": [
+          "i_tryptase"
+        ],
+        "points": 3
+      }
+    ],
+    "penalties": [],
+    "diagnosis": {
+      "correct": "dx_anaph",
+      "points": 15
+    },
+    "disposition": {
+      "correct": "disp_obs",
+      "points": 10,
+      "partial": {
+        "disp_icu": 4
+      }
+    }
+  },
+  "teaching": [
+    "Anaphylaxis: sudden Airway and/or Breathing and/or Circulation problems, usually with skin or mucosal changes, after exposure to a trigger. Skin features can be absent.",
+    "Adrenaline 0.5 mg IM (adult) into the anterolateral thigh is first-line. Repeat after 5 minutes if there is no improvement. Do not wait for IV access.",
+    "ABC problems persisting after two IM doses = refractory anaphylaxis: get critical-care help and start a low-dose IV adrenaline infusion with continuous monitoring.",
+    "Never give 1 mg of undiluted adrenaline IV to a patient with a pulse.",
+    "Antihistamines and corticosteroids are not first-line and do not treat ABC problems.",
+    "Give 500–1000 mL crystalloid boluses (adult) for hypotension and repeat as needed.",
+    "Tryptase: take a sample as soon as resuscitation allows, again at 1–2 h, and a baseline at ≥ 24 h.",
+    "Before discharge: observation period according to response, two adrenaline auto-injectors with training, a written plan and referral to an allergy clinic."
+  ],
+  "references": [
+    "Resuscitation Council UK. Emergency treatment of anaphylaxis: guidelines for healthcare providers (2021).",
+    "World Allergy Organization anaphylaxis guidance (2020)."
+  ]
+}

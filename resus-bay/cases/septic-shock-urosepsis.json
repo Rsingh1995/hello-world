@@ -1,0 +1,116 @@
+{
+  "id": "septic-shock-urosepsis",
+  "title": "Septic shock from a urinary source",
+  "card": { "complaint": "Fever, confusion and low blood pressure", "discipline": "Internal medicine", "setting": "Emergency department", "difficulty": "Core", "minutes": 15 },
+  "patient": { "name": "Kamala Devi", "age": 72, "sex": "F", "weight": 60 },
+  "triage": {
+    "note": "Brought by her son. Two days of burning when passing urine and fever; since this morning she is confused and has passed very little urine. Type 2 diabetes.",
+    "vitals": { "HR": "118", "BP": "84/46", "RR": "26", "SpO2": "93% air", "Temp": "38.9", "GCS": "14" }
+  },
+  "physiology": {
+    "start": 0.5, "rate": 0.04, "recovery": 0.03,
+    "rhythm": { "type": "sinus" },
+    "best":    { "hr": 88,  "sbp": 122, "dbp": 70, "rr": 18, "spo2": 97, "temp": 37.6 },
+    "initial": { "hr": 118, "sbp": 84,  "dbp": 46, "rr": 26, "spo2": 93, "temp": 38.9 },
+    "worst":   { "hr": 145, "sbp": 58,  "dbp": 30, "rr": 36, "spo2": 86, "temp": 39.4 }
+  },
+  "arrest": { "rhythm": "pea", "requireAdrenaline": true, "reversibleBy": ["fluid_bolus"], "roscSeverity": 0.85 },
+  "speech": { "impairedAbove": 0.6, "impairedText": "(Muddled and drowsy. She can’t give a clear answer. Ask her son.)" },
+  "appearance": [
+    { "below": 0.2,  "text": "Warmer and more alert. Talking sensibly." },
+    { "below": 0.4,  "text": "Flushed, a little confused but answering questions." },
+    { "below": 0.7,  "text": "Hot, flushed and confused. Mottled knees." },
+    { "below": 1.01, "text": "Drowsy, cold and mottled peripheries, barely responding." }
+  ],
+  "history": [
+    { "id": "h_son", "source": "Son", "q": "Ask her son what has happened", "keywords": ["son", "what happen", "collateral", "family", "when"], "a": "Two days ago she said it burned when she passed urine and she had a fever. This morning she didn’t know where she was and she’s hardly passed any urine." },
+    { "id": "h_allergy", "source": "Son", "q": "Any allergies?", "keywords": ["allerg", "react"], "a": "Penicillin: she came out in an itchy rash years ago. Nothing worse than that." },
+    { "id": "h_meds", "source": "Son", "q": "What medicines does she take?", "keywords": ["medic", "tablet", "drug", "taking"], "a": "Metformin, ramipril and aspirin." },
+    { "id": "h_pmh", "source": "Son", "q": "Any other medical problems?", "keywords": ["medical history", "problem", "condition", "kidney", "stone"], "a": "Diabetes and blood pressure. She had a kidney infection two years ago." },
+    { "id": "h_urine", "q": "Any burning or pain passing urine, or loin pain?", "keywords": ["urine", "burn", "pee", "loin", "back pain", "flank"], "a": "It burns… and my back hurts on the right." },
+    { "id": "h_other", "q": "Any cough, diarrhoea, headache or rash?", "keywords": ["cough", "diarr", "headache", "rash", "neck"], "a": "No… no cough." },
+    { "id": "h_feel", "q": "How are you feeling?", "keywords": ["how are you", "feel"], "a": "Hot… so tired. Where am I?", "variants": [ { "if": { "severityBelow": 0.25 }, "text": "Better, thank you. I’m in hospital, aren’t I?" } ] }
+  ],
+  "exam": [
+    { "id": "e_general", "label": "General", "text": "Hot, flushed, dry mucous membranes." },
+    { "id": "e_circ", "label": "Circulation", "text": "Bounding then thready pulse, capillary refill 4 s, mottling over the knees.", "variants": [ { "if": { "severityBelow": 0.3 }, "text": "Capillary refill 2 s, mottling resolved." } ] },
+    { "id": "e_resp", "label": "Respiratory", "text": "Tachypnoeic. Chest clear." },
+    { "id": "e_abdo", "label": "Abdomen & loins", "text": "Suprapubic tenderness and right renal-angle tenderness. No peritonism." },
+    { "id": "e_neuro", "label": "Neurological", "text": "GCS 14 (E4 V4 M6). No neck stiffness. No focal deficit.", "variants": [ { "if": { "severityAbove": 0.7 }, "text": "GCS 11 (E3 V3 M5). No neck stiffness." }, { "if": { "severityBelow": 0.25 }, "text": "GCS 15. Orientated." } ] },
+    { "id": "e_skin", "label": "Skin", "text": "No rash. No cellulitis. No pressure sores." }
+  ],
+  "investigations": [
+    { "id": "i_vbg", "group": "Bedside", "label": "Venous gas with lactate", "time": 180, "text": "pH 7.29, HCO₃⁻ 16 mmol/L, lactate 4.6 mmol/L, glucose 13.2 mmol/L (238 mg/dL).", "variants": [ { "if": { "severityBelow": 0.3 }, "text": "pH 7.35, HCO₃⁻ 20 mmol/L, lactate 2.1 mmol/L (falling)." } ] },
+    { "id": "i_cbg", "group": "Bedside", "label": "Capillary glucose", "time": 60, "text": "13.4 mmol/L (241 mg/dL)." },
+    { "id": "i_urine", "group": "Bedside", "label": "Urine dipstick", "time": 60, "text": "Leucocytes +++, nitrites positive, blood ++. Sample sent for culture." },
+    { "id": "i_ecg", "group": "Bedside", "label": "12-lead ECG", "time": 90, "text": "Sinus tachycardia. No ischaemic changes." },
+    { "id": "i_cultures", "group": "Laboratory", "label": "Blood cultures (2 sets)", "time": 60, "text": "Two sets taken before antibiotics. Gram-negative bacilli will be reported at 18 h." },
+    { "id": "i_bloods", "group": "Laboratory", "label": "FBC, U&E, LFT, CRP, coagulation", "time": 900, "text": "WCC 21.4 ×10⁹/L, CRP 286 mg/L, creatinine 212 µmol/L (2.4 mg/dL) (baseline 90), urea 18 mmol/L, bilirubin normal, platelets 132 ×10⁹/L, INR 1.3." },
+    { "id": "i_cxr", "group": "Imaging", "label": "Chest X-ray (portable)", "time": 600, "text": "No consolidation. No effusion." },
+    { "id": "i_uskub", "group": "Imaging", "label": "Ultrasound kidneys & bladder", "time": 900, "text": "Swollen right kidney. No hydronephrosis or stone: no obstruction needing drainage." }
+  ],
+  "interventions": [
+    { "id": "call_help", "group": "Help & referral", "label": "Call senior / critical-care outreach", "once": true, "say": "Nurse: “Outreach team are on their way.”" },
+    { "id": "o2", "group": "Airway & breathing", "label": "Oxygen to target 94–98%", "detail": "Nasal cannula or mask, titrated", "once": true, "effects": { "vitals": { "spo2": 4 }, "onset": 60 } },
+    { "id": "fluid_bolus", "group": "Circulation", "label": "Crystalloid 500 mL IV bolus", "detail": "Balanced crystalloid over 15 min; reassess after each", "requires": ["iv_access"], "max": 6, "effects": { "severity": -0.06, "onset": 300, "vitals": { "sbp": 8, "dbp": 4, "hr": -4 }, "duration": 1500 }, "say": "Nurse: “500 mL going in.”" },
+    { "id": "catheter", "group": "Circulation", "label": "Urinary catheter, hourly urine output", "once": true, "say": "Nurse: “Catheter in: 20 mL of dark, cloudy urine.”" },
+    { "id": "noradrenaline", "group": "Circulation", "label": "Noradrenaline infusion", "detail": "Target MAP ≥ 65 mmHg; peripheral line acceptable short-term", "requires": ["iv_access"], "once": true, "effects": { "vitals": { "sbp": 22, "dbp": 12 }, "onset": 300 }, "feedback": "A vasopressor is indicated when MAP stays below 65 mmHg despite fluids. Starting it through a good peripheral cannula while central access is arranged is acceptable." },
+    { "id": "ceftriaxone", "group": "Medications", "label": "Ceftriaxone 2 g IV", "requires": ["iv_access"], "once": true, "effects": { "progression": { "factor": 0.25 } }, "feedback": "With a non-severe (rash-only) penicillin allergy, third-generation cephalosporins are generally acceptable. Follow your local antimicrobial policy." },
+    { "id": "meropenem", "group": "Medications", "label": "Meropenem 1 g IV", "requires": ["iv_access"], "once": true, "effects": { "progression": { "factor": 0.25 } } },
+    { "id": "gentamicin", "group": "Medications", "label": "Gentamicin 5 mg/kg IV (single dose)", "requires": ["iv_access"], "once": true, "effects": { "progression": { "factor": 0.5 } }, "feedback": "A single dose is often used for urosepsis, but check renal function and follow local policy: this patient has an acute kidney injury." },
+    { "id": "piptaz", "group": "Medications", "label": "Piperacillin–tazobactam 4.5 g IV", "requires": ["iv_access"], "once": true, "harm": { "points": 15, "why": "Piperacillin–tazobactam is a penicillin. The patient has a documented penicillin allergy." }, "effects": { "severity": 0.1, "onset": 300, "progression": { "factor": 0.3 } }, "say": "Nurse: “She’s coming out in hives on her arms…”" },
+    { "id": "amoxicillin_po", "group": "Medications", "label": "Amoxicillin 500 mg oral", "once": true, "harm": { "points": 10, "why": "Oral amoxicillin is inadequate for septic shock and she is penicillin-allergic." } },
+    { "id": "paracetamol", "group": "Medications", "label": "Paracetamol 1 g IV", "requires": ["iv_access"], "once": true, "effects": { "vitals": { "temp": -0.8, "hr": -4 }, "onset": 900 } },
+    { "id": "stop_metformin", "group": "Medications", "label": "Withhold metformin and ramipril", "once": true, "say": "Nurse: “I’ve marked them as held on the chart.”" }
+  ],
+  "diagnoses": [
+    { "id": "dx_urosepsis", "label": "Septic shock from a urinary source (pyelonephritis)" },
+    { "id": "dx_cardio", "label": "Cardiogenic shock from myocardial infarction" },
+    { "id": "dx_gibleed", "label": "Hypovolaemic shock from a GI bleed" },
+    { "id": "dx_pe", "label": "Massive pulmonary embolism" },
+    { "id": "dx_dka", "label": "Diabetic ketoacidosis" },
+    { "id": "dx_mening", "label": "Bacterial meningitis" }
+  ],
+  "dispositions": [
+    { "id": "disp_icu", "label": "Critical care (HDU/ICU) review and admission" },
+    { "id": "disp_ward", "label": "Admit to a general medical ward" },
+    { "id": "disp_home", "label": "Discharge with oral antibiotics" }
+  ],
+  "scoring": {
+    "critical": [
+      { "id": "c_abx", "label": "IV antibiotics within 1 hour", "anyOf": ["ceftriaxone", "meropenem", "gentamicin", "piptaz"], "within": 3600, "points": 30, "why": "In septic shock give effective antimicrobials immediately, ideally within 1 hour of recognition. Each hour of delay increases mortality." },
+      { "id": "c_fluid", "label": "Fluid resuscitation started", "anyOf": ["fluid_bolus"], "within": 1800, "points": 15, "why": "Hypotension and a lactate ≥ 4 mmol/L need rapid crystalloid (about 30 mL/kg in the first 3 hours), reassessed after each bolus." },
+      { "id": "c_lactate", "label": "Lactate measured", "anyOf": ["i_vbg"], "within": 1800, "points": 10, "why": "Lactate identifies shock and guides resuscitation." },
+      { "id": "c_mon", "label": "Monitoring attached", "anyOf": ["monitor"], "within": 300, "points": 5, "why": "Continuous observations are needed in shock." }
+    ],
+    "recommended": [
+      { "id": "r_cultures", "label": "Blood cultures taken", "anyOf": ["i_cultures"], "points": 5 },
+      { "id": "r_fluid3", "label": "At least 1.5 L crystalloid (≈ 30 mL/kg for 60 kg)", "anyOf": ["fluid_bolus"], "count": 3, "points": 5 },
+      { "id": "r_allergy", "label": "Checked allergies", "anyOf": ["h_allergy"], "points": 5 },
+      { "id": "r_source", "label": "Looked for the source (urine dip / loin exam)", "anyOf": ["i_urine", "e_abdo", "h_urine"], "points": 4 },
+      { "id": "r_uo", "label": "Urine output monitored", "anyOf": ["catheter"], "points": 4 },
+      { "id": "r_help", "label": "Escalated to senior / critical care", "anyOf": ["call_help"], "points": 5 },
+      { "id": "r_o2", "label": "Oxygen titrated to target", "anyOf": ["o2"], "points": 3 },
+      { "id": "r_nephro", "label": "Withheld nephrotoxic / risky drugs", "anyOf": ["stop_metformin"], "points": 3 }
+    ],
+    "penalties": [
+      { "ifAction": "ceftriaxone", "before": ["i_cultures"], "points": 3, "why": "Antibiotics were given before blood cultures. Take cultures first when this causes no delay." },
+      { "ifAction": "meropenem", "before": ["i_cultures"], "points": 3, "why": "Antibiotics were given before blood cultures. Take cultures first when this causes no delay." }
+    ],
+    "diagnosis": { "correct": "dx_urosepsis", "points": 15 },
+    "disposition": { "correct": "disp_icu", "points": 10, "partial": { "disp_ward": 3 } }
+  },
+  "teaching": [
+    "Septic shock: sepsis with vasopressors needed to keep MAP ≥ 65 mmHg and lactate > 2 mmol/L despite adequate fluids. Hypotension with lactate ≥ 4 mmol/L is managed as shock from the start.",
+    "Hour-1 bundle: measure lactate, take blood cultures, give broad-spectrum antibiotics, start crystalloid (about 30 mL/kg for hypotension or lactate ≥ 4), and start a vasopressor if MAP stays below 65 mmHg.",
+    "Take cultures before antibiotics, but never delay antibiotics to do so.",
+    "Always check allergies. A rash-only penicillin allergy does not usually rule out cephalosporins or carbapenems; an anaphylactic one needs a different plan.",
+    "Look for a source that needs control (obstructed kidney, abscess, infected line). An obstructed infected kidney needs urgent drainage.",
+    "Monitor urine output with a catheter and withhold nephrotoxic drugs and metformin in acute kidney injury.",
+    "Escalate early to critical care when hypotension persists after fluids."
+  ],
+  "references": [
+    "Surviving Sepsis Campaign: international guidelines for management of sepsis and septic shock 2021.",
+    "NICE NG51. Suspected sepsis: recognition, diagnosis and early management (updated 2024)."
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "id": "asthma-life-threatening",
+  "title": "Life-threatening acute asthma",
+  "card": { "complaint": "Wheezy and too breathless to finish a sentence", "discipline": "Respiratory medicine", "setting": "Emergency department", "difficulty": "Core", "minutes": 10 },
+  "patient": { "name": "Priya Nair", "age": 19, "sex": "F", "weight": 55 },
+  "triage": {
+    "note": "Known asthmatic. Two days of a cold, then worsening wheeze today. Her blue inhaler has not helped despite 20 puffs. Came by auto-rickshaw with her roommate.",
+    "vitals": { "HR": "124", "BP": "118/72", "RR": "30", "SpO2": "91% air", "Temp": "37.2", "GCS": "15" }
+  },
+  "physiology": {
+    "start": 0.55, "rate": 0.05, "recovery": 0.05,
+    "rhythm": { "type": "sinus" },
+    "best":    { "hr": 92,  "sbp": 120, "dbp": 74, "rr": 18, "spo2": 97, "temp": 37.1 },
+    "initial": { "hr": 124, "sbp": 118, "dbp": 72, "rr": 30, "spo2": 91, "temp": 37.2 },
+    "worst":   { "hr": 150, "sbp": 90,  "dbp": 50, "rr": 10, "spo2": 78, "temp": 37.2 }
+  },
+  "arrest": { "rhythm": "pea", "requireAdrenaline": true, "reversibleBy": ["salbutamol"], "roscSeverity": 0.85 },
+  "speech": { "impairedAbove": 0.5, "impairedText": "(She shakes her head. Too breathless to speak.)" },
+  "appearance": [
+    { "below": 0.2,  "text": "Much more comfortable. Talking in full sentences." },
+    { "below": 0.45, "text": "Wheezy, sitting forward, speaking in short sentences." },
+    { "below": 0.75, "text": "Exhausted, speaking single words, using accessory muscles." },
+    { "below": 1.01, "text": "Drowsy, slumping, very little chest movement: a silent chest." }
+  ],
+  "history": [
+    { "id": "h_story", "q": "When did this start?", "keywords": ["what happen", "start", "when", "how long"], "a": "Cold… two days. Worse… today." },
+    { "id": "h_inhaler", "q": "How much reliever have you used?", "keywords": ["inhaler", "puff", "reliever", "blue", "salbutamol", "used"], "a": "Twenty puffs… not helping." },
+    { "id": "h_prev_icu", "q": "Ever been in ICU or on a ventilator for asthma?", "keywords": ["icu", "intensive", "ventilat", "intubat", "admit", "hospital before", "previous"], "a": "Once… ICU… two years ago." },
+    { "id": "h_preventer", "q": "Do you use a preventer inhaler?", "keywords": ["preventer", "steroid", "brown", "controller", "regular"], "a": "Stopped… months ago." },
+    { "id": "h_allergy", "q": "Any allergies?", "keywords": ["allerg"], "a": "No." },
+    { "id": "h_roommate", "source": "Roommate", "q": "Ask the roommate", "keywords": ["roommate", "friend", "collateral", "witness"], "a": "She’s been getting worse all afternoon. She stopped taking her brown inhaler because she ran out, and she was in intensive care two years ago with this." }
+  ],
+  "exam": [
+    { "id": "e_chest", "label": "Chest", "text": "Hyperexpanded chest, widespread polyphonic wheeze, reduced air entry bilaterally. Trachea central, equal expansion.", "variants": [ { "if": { "severityAbove": 0.75 }, "text": "Very quiet chest: barely any air entry or wheeze (silent chest). Trachea central." }, { "if": { "severityBelow": 0.25 }, "text": "Scattered expiratory wheeze only. Good air entry." } ] },
+    { "id": "e_general", "label": "General", "text": "Sitting forward, using accessory muscles, speaking in single words." },
+    { "id": "e_cvs", "label": "Cardiovascular", "text": "Tachycardic, regular. Heart sounds normal." },
+    { "id": "e_neuro", "label": "Neurological", "text": "Alert, anxious.", "variants": [ { "if": { "severityAbove": 0.75 }, "text": "Drowsy and exhausted: a sign of imminent respiratory arrest." } ] }
+  ],
+  "investigations": [
+    { "id": "i_pef", "group": "Bedside", "label": "Peak expiratory flow", "time": 30, "text": "PEF 130 L/min (≈ 30% of best 430 L/min): life-threatening range (< 33%).", "variants": [ { "if": { "severityBelow": 0.25 }, "text": "PEF 290 L/min (≈ 67% of best)." }, { "if": { "severityAbove": 0.7 }, "text": "Unable to perform: too breathless." } ] },
+    { "id": "i_abg", "group": "Bedside", "label": "Arterial blood gas (on oxygen)", "time": 180, "text": "pH 7.36, pO₂ 9.1 kPa (68 mmHg), pCO₂ 5.6 kPa (42 mmHg), HCO₃⁻ 23, lactate 2.4. A NORMAL pCO₂ in a breathless asthmatic is a life-threatening feature.", "variants": [ { "if": { "severityAbove": 0.75 }, "text": "pH 7.24, pO₂ 7.9 kPa (59 mmHg), pCO₂ 7.4 kPa (56 mmHg): rising CO₂, near-fatal asthma." }, { "if": { "severityBelow": 0.25 }, "text": "pH 7.45, pO₂ 13 kPa (98 mmHg), pCO₂ 4.2 kPa (32 mmHg)." } ] },
+    { "id": "i_k", "group": "Bedside", "label": "Potassium (on gas)", "time": 120, "text": "K⁺ 3.2 mmol/L: low, as expected with repeated β₂-agonists." },
+    { "id": "i_cxr", "group": "Imaging", "label": "Chest X-ray", "time": 600, "text": "Hyperinflation. No pneumothorax, no consolidation." },
+    { "id": "i_bloods", "group": "Laboratory", "label": "FBC, U&E, CRP", "time": 900, "text": "WCC 12.1 ×10⁹/L, CRP 14 mg/L, U&E normal." }
+  ],
+  "interventions": [
+    { "id": "o2", "group": "Airway & breathing", "label": "Oxygen to target 94–98%", "once": true, "effects": { "vitals": { "spo2": 5 }, "onset": 60 }, "say": "Nurse: “Oxygen on.”" },
+    { "id": "salbutamol", "group": "Airway & breathing", "label": "Salbutamol 5 mg nebulised (oxygen-driven)", "detail": "Repeat back-to-back if needed", "max": 6, "effects": { "severity": -0.15, "onset": 300, "vitals": { "hr": 6 }, "duration": 1200, "progression": { "factor": 0.5, "duration": 1200 } }, "say": "Nurse: “Nebuliser running on oxygen.”" },
+    { "id": "ipratropium", "group": "Airway & breathing", "label": "Ipratropium 500 micrograms nebulised", "max": 3, "effects": { "severity": -0.05, "onset": 600, "progression": { "factor": 0.9 } } },
+    { "id": "prednisolone", "group": "Medications", "label": "Prednisolone 40–50 mg oral", "once": true, "effects": { "progression": { "factor": 0.6 } } },
+    { "id": "hydrocortisone", "group": "Medications", "label": "Hydrocortisone 100 mg IV", "requires": ["iv_access"], "once": true, "effects": { "progression": { "factor": 0.6 } } },
+    { "id": "magnesium", "group": "Medications", "label": "Magnesium sulfate 2 g IV over 20 min", "requires": ["iv_access"], "once": true, "effects": { "severity": -0.15, "onset": 900 } },
+    { "id": "aminophylline", "group": "Medications", "label": "Aminophylline IV loading dose", "requires": ["iv_access"], "once": true, "effects": { "severity": -0.05, "onset": 900, "vitals": { "hr": 12 }, "duration": 1800 }, "feedback": "Only after senior discussion. There is little evidence of benefit over nebulised bronchodilators and there are more side effects (arrhythmias, vomiting)." },
+    { "id": "diazepam", "group": "Medications", "label": "Diazepam 5 mg IV for anxiety", "requires": ["iv_access"], "once": true, "harm": { "points": 20, "why": "Sedatives are contraindicated in acute asthma: they suppress respiratory drive and can precipitate respiratory arrest." }, "effects": { "severity": 0.25, "onset": 120 } },
+    { "id": "amoxicillin", "group": "Medications", "label": "Amoxicillin 500 mg oral", "once": true, "feedback": "Antibiotics are not routinely indicated in acute asthma; most exacerbations are viral." },
+    { "id": "call_icu", "group": "Help & referral", "label": "Call ICU / anaesthetist", "detail": "Life-threatening features", "once": true, "say": "Nurse: “ICU registrar and anaesthetist are coming.”" },
+    { "id": "intubate", "group": "Airway & breathing", "label": "RSI and intubation (anaesthetist)", "once": true, "effects": { "severity": -0.3, "onset": 300, "progression": { "factor": 0.3 } }, "feedback": "Intubation is for exhaustion, rising CO₂, drowsiness or arrest despite maximal treatment, done by the most experienced person available." }
+  ],
+  "diagnoses": [
+    { "id": "dx_lta", "label": "Life-threatening acute asthma" },
+    { "id": "dx_moderate", "label": "Moderate asthma exacerbation" },
+    { "id": "dx_anaph", "label": "Anaphylaxis" },
+    { "id": "dx_ptx", "label": "Spontaneous pneumothorax" },
+    { "id": "dx_pneum", "label": "Community-acquired pneumonia" },
+    { "id": "dx_panic", "label": "Panic attack with hyperventilation" }
+  ],
+  "dispositions": [
+    { "id": "disp_icu", "label": "Admit to HDU/ICU" },
+    { "id": "disp_ward", "label": "Admit to a respiratory ward" },
+    { "id": "disp_home", "label": "Discharge once PEF improves, with oral steroids" }
+  ],
+  "scoring": {
+    "critical": [
+      { "id": "c_salb", "label": "Nebulised salbutamol", "anyOf": ["salbutamol"], "within": 300, "points": 25, "why": "High-dose inhaled β₂-agonist is first-line, repeated back-to-back in severe attacks." },
+      { "id": "c_o2", "label": "Oxygen to target 94–98%", "anyOf": ["o2"], "within": 180, "points": 10, "why": "Hypoxaemia with SpO₂ < 92% is a life-threatening feature." },
+      { "id": "c_steroid", "label": "Systemic steroid", "anyOf": ["prednisolone", "hydrocortisone"], "within": 3600, "points": 15, "why": "Steroids reduce mortality and relapse; give them early." },
+      { "id": "c_icu", "label": "Escalated to ICU / anaesthetist", "anyOf": ["call_icu"], "within": 1200, "points": 10, "why": "Life-threatening features (PEF < 33%, SpO₂ < 92%, normal or rising pCO₂, silent chest, exhaustion) need early critical-care involvement." }
+    ],
+    "recommended": [
+      { "id": "r_ipra", "label": "Nebulised ipratropium", "anyOf": ["ipratropium"], "points": 5 },
+      { "id": "r_mag", "label": "IV magnesium sulfate", "anyOf": ["magnesium"], "points": 5 },
+      { "id": "r_pef", "label": "Peak flow measured", "anyOf": ["i_pef"], "points": 4 },
+      { "id": "r_abg", "label": "Blood gas to check CO₂", "anyOf": ["i_abg"], "points": 5 },
+      { "id": "r_hist", "label": "Asked about previous ICU admission", "anyOf": ["h_prev_icu", "h_roommate"], "points": 4 },
+      { "id": "r_chest", "label": "Examined the chest", "anyOf": ["e_chest"], "points": 3 },
+      { "id": "r_mon", "label": "Monitoring attached", "anyOf": ["monitor"], "points": 3 }
+    ],
+    "penalties": [],
+    "diagnosis": { "correct": "dx_lta", "points": 15 },
+    "disposition": { "correct": "disp_icu", "points": 10, "partial": { "disp_ward": 3 } }
+  },
+  "teaching": [
+    "Severity: acute severe = PEF 33–50%, RR ≥ 25, HR ≥ 110, unable to complete sentences. Life-threatening = PEF < 33%, SpO₂ < 92%, normal pCO₂, silent chest, cyanosis, exhaustion, altered consciousness, hypotension or arrhythmia.",
+    "A normal pCO₂ in a breathless asthmatic means she is tiring. A rising pCO₂ means near-fatal asthma.",
+    "Give oxygen to 94–98%, oxygen-driven nebulised salbutamol 5 mg (back-to-back if severe), ipratropium 0.5 mg, and prednisolone 40–50 mg or IV hydrocortisone 100 mg.",
+    "Consider IV magnesium sulfate 1.2–2 g over 20 minutes for acute severe asthma not responding to initial treatment.",
+    "Never sedate a patient with acute asthma outside a critical-care setting.",
+    "Previous ICU admission, non-adherence to preventer therapy and heavy reliever use predict fatal asthma.",
+    "Chest X-ray is not routine: do it if pneumothorax, consolidation or a life-threatening attack is suspected, without delaying treatment."
+  ],
+  "references": [
+    "BTS/NICE/SIGN. Asthma: diagnosis, monitoring and chronic asthma management (2024), and BTS/SIGN acute asthma guidance.",
+    "Global Initiative for Asthma (GINA) 2024 report."
+  ]
+}

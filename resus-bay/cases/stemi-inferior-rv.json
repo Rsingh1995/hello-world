@@ -1,0 +1,676 @@
+{
+  "id": "stemi-inferior-rv",
+  "title": "Inferior STEMI with right ventricular involvement",
+  "card": {
+    "complaint": "Central chest pain and sweating for 45 minutes",
+    "discipline": "Cardiology",
+    "setting": "Emergency department, PCI-capable hospital",
+    "difficulty": "Advanced",
+    "minutes": 12
+  },
+  "patient": {
+    "name": "Mohan Das",
+    "age": 58,
+    "sex": "M",
+    "weight": 78
+  },
+  "triage": {
+    "note": "Brought in by family. Crushing central chest pain radiating to the jaw and left arm for 45 minutes, with sweating and nausea. Known diabetic and smoker.",
+    "vitals": {
+      "HR": "54",
+      "BP": "94/60",
+      "RR": "20",
+      "SpO2": "95% air",
+      "Temp": "36.8",
+      "GCS": "15"
+    }
+  },
+  "physiology": {
+    "start": 0.35,
+    "rate": 0.055,
+    "recovery": 0.03,
+    "rhythm": {
+      "type": "sinus",
+      "st": 0.28
+    },
+    "best": {
+      "hr": 72,
+      "sbp": 122,
+      "dbp": 76,
+      "rr": 16,
+      "spo2": 97,
+      "temp": 36.8
+    },
+    "initial": {
+      "hr": 54,
+      "sbp": 94,
+      "dbp": 60,
+      "rr": 20,
+      "spo2": 95,
+      "temp": 36.8
+    },
+    "worst": {
+      "hr": 42,
+      "sbp": 70,
+      "dbp": 40,
+      "rr": 28,
+      "spo2": 89,
+      "temp": 36.8
+    }
+  },
+  "arrest": {
+    "rhythm": "vf",
+    "shocksNeeded": 1,
+    "roscSeverity": 0.7
+  },
+  "appearance": [
+    {
+      "below": 0.2,
+      "text": "Pain easing, less sweaty, talking comfortably."
+    },
+    {
+      "below": 0.5,
+      "text": "Grey and sweaty, clutching his chest. Pain 8/10, nauseated."
+    },
+    {
+      "below": 0.8,
+      "text": "Pale, cold and clammy, restless. Pain 10/10."
+    },
+    {
+      "below": 1.01,
+      "text": "Drowsy and mottled, barely responding."
+    }
+  ],
+  "history": [
+    {
+      "id": "h_pain",
+      "q": "Tell me about the pain",
+      "keywords": [
+        "pain",
+        "what happen",
+        "start",
+        "when",
+        "describe",
+        "feel like",
+        "where",
+        "radiat",
+        "character",
+        "sudden"
+      ],
+      "a": "It started 45 minutes ago climbing the stairs. Like an elephant sitting on my chest. It goes into my jaw and left arm."
+    },
+    {
+      "id": "h_score",
+      "q": "How bad is it, out of 10?",
+      "keywords": [
+        "out of 10",
+        "severe",
+        "score",
+        "scale",
+        "how bad"
+      ],
+      "a": "Nine out of ten. The worst pain of my life."
+    },
+    {
+      "id": "h_assoc",
+      "q": "Any sweating, nausea or breathlessness?",
+      "keywords": [
+        "sweat",
+        "nause",
+        "vomit",
+        "breathless",
+        "short of breath",
+        "dizz"
+      ],
+      "a": "I’m sweating buckets and I feel sick. A little breathless."
+    },
+    {
+      "id": "h_prev",
+      "q": "Have you had anything like this before?",
+      "keywords": [
+        "before",
+        "previous",
+        "similar",
+        "angina",
+        "heart attack"
+      ],
+      "a": "For a few weeks I’ve had tightness walking uphill that went away with rest. Never this bad."
+    },
+    {
+      "id": "h_pmh",
+      "q": "Any medical problems?",
+      "keywords": [
+        "medical history",
+        "problem",
+        "condition",
+        "illness",
+        "diabet",
+        "pressure",
+        "cholesterol"
+      ],
+      "a": "Diabetes for 10 years and high blood pressure. The doctor said my cholesterol is high."
+    },
+    {
+      "id": "h_meds",
+      "q": "What medicines do you take?",
+      "keywords": [
+        "medic",
+        "tablet",
+        "taking",
+        "drug"
+      ],
+      "a": "Metformin and amlodipine. I stopped the statin because it gave me aches."
+    },
+    {
+      "id": "h_pde5",
+      "q": "Any sildenafil or tadalafil in the last 48 hours?",
+      "keywords": [
+        "sildenafil",
+        "viagra",
+        "tadalafil",
+        "erectile",
+        "pde"
+      ],
+      "a": "(Embarrassed) Yes… sildenafil, last night."
+    },
+    {
+      "id": "h_allergy",
+      "q": "Any allergies?",
+      "keywords": [
+        "allerg"
+      ],
+      "a": "No allergies."
+    },
+    {
+      "id": "h_bleed",
+      "q": "Any bleeding problems, recent surgery, stroke or ulcer?",
+      "keywords": [
+        "bleed",
+        "surgery",
+        "stroke",
+        "ulcer",
+        "thinner",
+        "anticoag"
+      ],
+      "a": "No, nothing like that."
+    },
+    {
+      "id": "h_social",
+      "q": "Do you smoke?",
+      "keywords": [
+        "smok",
+        "cigar",
+        "bidi",
+        "tobacco",
+        "alcohol"
+      ],
+      "a": "About 20 a day for 30 years."
+    },
+    {
+      "id": "h_family",
+      "q": "Any heart disease in the family?",
+      "keywords": [
+        "family",
+        "father",
+        "mother",
+        "brother"
+      ],
+      "a": "My father died of a heart attack at 60."
+    }
+  ],
+  "exam": [
+    {
+      "id": "e_general",
+      "label": "General",
+      "text": "Grey, sweaty, anxious, in obvious pain."
+    },
+    {
+      "id": "e_cvs",
+      "label": "Cardiovascular",
+      "text": "Pulse 54, regular, low volume. JVP raised to 6 cm. Heart sounds normal, no murmurs. Radial pulses equal."
+    },
+    {
+      "id": "e_resp",
+      "label": "Respiratory",
+      "text": "Chest clear. No crackles."
+    },
+    {
+      "id": "e_abdo",
+      "label": "Abdomen",
+      "text": "Soft, non-tender."
+    },
+    {
+      "id": "e_periph",
+      "label": "Peripheries",
+      "text": "Cool peripheries, capillary refill 3 s. No calf swelling."
+    },
+    {
+      "id": "e_neuro",
+      "label": "Neurological",
+      "text": "GCS 15. No focal deficit."
+    }
+  ],
+  "investigations": [
+    {
+      "id": "ecg12",
+      "group": "Bedside",
+      "label": "12-lead ECG",
+      "time": 60,
+      "text": "Sinus bradycardia 54/min. ST elevation 3 mm in II, III and aVF (III > II). Reciprocal ST depression in I and aVL. ST elevation in V1. Consider right-sided leads."
+    },
+    {
+      "id": "ecg_right",
+      "group": "Bedside",
+      "label": "Right-sided ECG (V4R)",
+      "time": 60,
+      "text": "1.5 mm ST elevation in V4R: right ventricular involvement."
+    },
+    {
+      "id": "i_cbg",
+      "group": "Bedside",
+      "label": "Capillary glucose",
+      "time": 60,
+      "text": "14.8 mmol/L (266 mg/dL)."
+    },
+    {
+      "id": "i_echo",
+      "group": "Bedside",
+      "label": "Focused echo (POCUS)",
+      "time": 300,
+      "text": "Inferior wall hypokinesia. Dilated, hypokinetic RV. No pericardial effusion. LV function mildly reduced."
+    },
+    {
+      "id": "i_trop",
+      "group": "Laboratory",
+      "label": "hs-Troponin",
+      "time": 1200,
+      "text": "hs-Troponin I 86 ng/L (ref < 26)."
+    },
+    {
+      "id": "i_bloods",
+      "group": "Laboratory",
+      "label": "FBC, U&E, coagulation",
+      "time": 900,
+      "text": "Hb 13.8 g/dL, platelets 240 ×10⁹/L, creatinine 98 µmol/L (1.1 mg/dL), K⁺ 4.2 mmol/L, INR 1.0."
+    },
+    {
+      "id": "i_cxr",
+      "group": "Imaging",
+      "label": "Chest X-ray (portable)",
+      "time": 600,
+      "text": "Normal heart size and mediastinum. Clear lungs."
+    }
+  ],
+  "interventions": [
+    {
+      "id": "pads",
+      "group": "Monitoring",
+      "label": "Apply defibrillator pads",
+      "detail": "High early risk of VF",
+      "once": true,
+      "say": "Nurse: “Pads on, defibrillator in monitor mode.”"
+    },
+    {
+      "id": "aspirin",
+      "group": "Medications",
+      "label": "Aspirin 300 mg chewed",
+      "once": true,
+      "effects": {
+        "progression": {
+          "factor": 0.8
+        }
+      },
+      "say": "Nurse: “Aspirin 300 mg chewed.”"
+    },
+    {
+      "id": "ticagrelor",
+      "group": "Medications",
+      "label": "Ticagrelor 180 mg oral",
+      "detail": "P2Y12 loading dose",
+      "once": true,
+      "effects": {
+        "progression": {
+          "factor": 0.9
+        }
+      }
+    },
+    {
+      "id": "clopidogrel",
+      "group": "Medications",
+      "label": "Clopidogrel 600 mg oral",
+      "detail": "P2Y12 loading dose",
+      "once": true,
+      "effects": {
+        "progression": {
+          "factor": 0.9
+        }
+      }
+    },
+    {
+      "id": "heparin",
+      "group": "Medications",
+      "label": "Unfractionated heparin IV",
+      "detail": "70–100 U/kg bolus for primary PCI",
+      "requires": [
+        "iv_access"
+      ],
+      "once": true
+    },
+    {
+      "id": "gtn",
+      "group": "Medications",
+      "label": "GTN 400 micrograms sublingual",
+      "max": 2,
+      "harm": {
+        "points": 20,
+        "why": "Nitrates are contraindicated with systolic BP < 90 mmHg, suspected right ventricular infarction (preload-dependent) and PDE-5 inhibitor use in the previous 24–48 h. This patient had all three."
+      },
+      "effects": {
+        "severity": 0.2,
+        "onset": 60,
+        "vitals": {
+          "sbp": -25,
+          "dbp": -12,
+          "hr": 4
+        },
+        "duration": 600
+      },
+      "say": "Nurse: “GTN given… his pressure is dropping.”"
+    },
+    {
+      "id": "morphine",
+      "group": "Medications",
+      "label": "Morphine 2.5 mg IV, titrated",
+      "detail": "With an antiemetic",
+      "requires": [
+        "iv_access"
+      ],
+      "max": 3,
+      "effects": {
+        "vitals": {
+          "sbp": -5
+        },
+        "onset": 120,
+        "duration": 600
+      },
+      "feedback": "Opioids relieve pain but can worsen hypotension and delay absorption of oral P2Y12 inhibitors. Titrate small doses."
+    },
+    {
+      "id": "atropine",
+      "group": "Medications",
+      "label": "Atropine 500 micrograms IV",
+      "requires": [
+        "iv_access"
+      ],
+      "max": 3,
+      "effects": {
+        "vitals": {
+          "hr": 14,
+          "sbp": 5
+        },
+        "onset": 60,
+        "duration": 900
+      },
+      "feedback": "Reasonable for symptomatic bradycardia with hypotension in inferior MI. Here the hypotension is mainly RV failure, so fluids help more."
+    },
+    {
+      "id": "fluid",
+      "group": "Circulation",
+      "label": "Crystalloid 250 mL IV bolus",
+      "detail": "Reassess after each bolus",
+      "requires": [
+        "iv_access"
+      ],
+      "max": 4,
+      "effects": {
+        "severity": -0.05,
+        "onset": 300,
+        "vitals": {
+          "sbp": 10,
+          "hr": 4
+        },
+        "duration": 900
+      },
+      "say": "Nurse: “250 mL going in.”"
+    },
+    {
+      "id": "o2",
+      "group": "Airway & breathing",
+      "label": "High-flow oxygen",
+      "detail": "15 L/min via non-rebreather mask",
+      "once": true,
+      "effects": {
+        "vitals": {
+          "spo2": 3
+        },
+        "onset": 60
+      },
+      "feedback": "Routine oxygen is not recommended in acute coronary syndromes when SpO₂ is ≥ 90%."
+    },
+    {
+      "id": "lysis",
+      "group": "Medications",
+      "label": "Tenecteplase IV (weight-based)",
+      "requires": [
+        "iv_access"
+      ],
+      "once": true,
+      "effects": {
+        "severity": -0.15,
+        "onset": 900,
+        "progression": {
+          "factor": 0
+        }
+      },
+      "harm": {
+        "points": 6,
+        "why": "Fibrinolysis is for when primary PCI cannot be delivered within 120 minutes of diagnosis. In a PCI-capable centre it adds bleeding risk without benefit over primary PCI."
+      }
+    },
+    {
+      "id": "cathlab",
+      "group": "Help & referral",
+      "label": "Activate cath lab",
+      "detail": "Primary PCI",
+      "once": true,
+      "say": "Cardiology: “Cath lab activated. Table ready in 20 minutes.”"
+    }
+  ],
+  "diagnoses": [
+    {
+      "id": "dx_istemi",
+      "label": "Inferior STEMI with right ventricular involvement"
+    },
+    {
+      "id": "dx_astemi",
+      "label": "Anterior STEMI"
+    },
+    {
+      "id": "dx_nstemi",
+      "label": "NSTEMI"
+    },
+    {
+      "id": "dx_dissect",
+      "label": "Acute aortic dissection"
+    },
+    {
+      "id": "dx_pe",
+      "label": "Massive pulmonary embolism"
+    },
+    {
+      "id": "dx_peri",
+      "label": "Acute pericarditis"
+    }
+  ],
+  "dispositions": [
+    {
+      "id": "disp_cath",
+      "label": "Cath lab for primary PCI, then CCU"
+    },
+    {
+      "id": "disp_ccu",
+      "label": "Admit to CCU for medical management; angiography tomorrow"
+    },
+    {
+      "id": "disp_lysis",
+      "label": "Thrombolyse in the ED, then transfer to a PCI centre"
+    },
+    {
+      "id": "disp_ward",
+      "label": "Admit to a general ward for serial troponins"
+    }
+  ],
+  "scoring": {
+    "critical": [
+      {
+        "id": "c_ecg",
+        "label": "12-lead ECG within 10 minutes",
+        "anyOf": [
+          "ecg12"
+        ],
+        "within": 600,
+        "points": 15,
+        "why": "STEMI is diagnosed on the ECG. Record it within 10 minutes of first medical contact."
+      },
+      {
+        "id": "c_asp",
+        "label": "Aspirin given",
+        "anyOf": [
+          "aspirin"
+        ],
+        "within": 900,
+        "points": 15,
+        "why": "Aspirin 150–300 mg loading dose, chewed."
+      },
+      {
+        "id": "c_cath",
+        "label": "Cath lab activated for primary PCI",
+        "anyOf": [
+          "cathlab"
+        ],
+        "within": 900,
+        "points": 25,
+        "why": "Primary PCI is the preferred reperfusion strategy when it can be delivered within 120 minutes of diagnosis."
+      },
+      {
+        "id": "c_mon",
+        "label": "Monitoring attached",
+        "anyOf": [
+          "monitor"
+        ],
+        "within": 180,
+        "points": 5,
+        "why": "Risk of VF and brady-arrhythmia is highest in the first hours."
+      }
+    ],
+    "recommended": [
+      {
+        "id": "r_p2y12",
+        "label": "P2Y12 inhibitor loading dose",
+        "anyOf": [
+          "ticagrelor",
+          "clopidogrel"
+        ],
+        "points": 5
+      },
+      {
+        "id": "r_rv",
+        "label": "Right-sided ECG to look for RV infarction",
+        "anyOf": [
+          "ecg_right"
+        ],
+        "points": 5
+      },
+      {
+        "id": "r_fluid",
+        "label": "Fluid bolus for RV-infarct hypotension",
+        "anyOf": [
+          "fluid"
+        ],
+        "points": 5
+      },
+      {
+        "id": "r_pads",
+        "label": "Defibrillator pads applied",
+        "anyOf": [
+          "pads"
+        ],
+        "points": 3
+      },
+      {
+        "id": "r_iv",
+        "label": "IV access obtained",
+        "anyOf": [
+          "iv_access"
+        ],
+        "points": 3
+      },
+      {
+        "id": "r_bleed",
+        "label": "Checked allergies or bleeding risk",
+        "anyOf": [
+          "h_allergy",
+          "h_bleed"
+        ],
+        "points": 3
+      },
+      {
+        "id": "r_pde5",
+        "label": "Asked about PDE-5 inhibitors",
+        "anyOf": [
+          "h_pde5"
+        ],
+        "points": 3
+      }
+    ],
+    "penalties": [
+      {
+        "ifAction": "o2",
+        "when": {
+          "spo2": {
+            "gte": 92
+          }
+        },
+        "points": 3,
+        "why": "Oxygen was given with SpO₂ ≥ 92%. Routine oxygen does not help in ACS unless SpO₂ is < 90%."
+      },
+      {
+        "ifAction": "clopidogrel",
+        "ifDone": [
+          "ticagrelor"
+        ],
+        "points": 5,
+        "why": "Two different P2Y12 inhibitors were loaded. Give one."
+      },
+      {
+        "ifAction": "ticagrelor",
+        "ifDone": [
+          "clopidogrel"
+        ],
+        "points": 5,
+        "why": "Two different P2Y12 inhibitors were loaded. Give one."
+      }
+    ],
+    "diagnosis": {
+      "correct": "dx_istemi",
+      "points": 15
+    },
+    "disposition": {
+      "correct": "disp_cath",
+      "points": 10
+    }
+  },
+  "teaching": [
+    "Record and read a 12-lead ECG within 10 minutes of first medical contact. STEMI is an ECG diagnosis: do not wait for troponin.",
+    "In inferior STEMI, record right-sided leads (V4R). RV involvement is common; the clue is hypotension with a raised JVP and clear lungs.",
+    "RV infarction is preload-dependent: avoid nitrates and diuretics and give cautious fluid boluses.",
+    "Nitrates are contraindicated with SBP < 90 mmHg, RV infarction, and sildenafil in the past 24 h or tadalafil in the past 48 h.",
+    "Aspirin loading plus a P2Y12 inhibitor; anticoagulation at the time of PCI.",
+    "Primary PCI if it can be delivered within 120 minutes of diagnosis. Otherwise give fibrinolysis within 10 minutes of diagnosis and transfer.",
+    "Oxygen only if SpO₂ < 90%. Put pads on early: VF risk is highest in the first hours."
+  ],
+  "references": [
+    "2023 ESC Guidelines for the management of acute coronary syndromes.",
+    "Resuscitation Council UK. Adult advanced life support guidelines (2021)."
+  ]
+}

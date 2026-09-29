@@ -1,0 +1,651 @@
+{
+  "id": "tension-pneumothorax",
+  "title": "Right tension pneumothorax after blunt trauma",
+  "card": {
+    "complaint": "Motorcyclist with a chest injury, rapidly worsening breathlessness",
+    "discipline": "Trauma",
+    "setting": "Emergency department trauma bay",
+    "difficulty": "Core",
+    "minutes": 8
+  },
+  "patient": {
+    "name": "Sameer Khan",
+    "age": 32,
+    "sex": "M",
+    "weight": 72
+  },
+  "triage": {
+    "note": "Motorcycle versus car at about 50 km/h, helmeted. Struck the right side of his chest on the handlebar. Paramedics gave oxygen by face mask. Increasingly breathless over the last 10 minutes.",
+    "vitals": {
+      "HR": "126",
+      "BP": "92/58",
+      "RR": "32",
+      "SpO2": "88% on mask",
+      "Temp": "36.4",
+      "GCS": "14"
+    }
+  },
+  "physiology": {
+    "start": 0.5,
+    "rate": 0.09,
+    "recovery": 0.08,
+    "rhythm": {
+      "type": "sinus"
+    },
+    "best": {
+      "hr": 92,
+      "sbp": 124,
+      "dbp": 78,
+      "rr": 18,
+      "spo2": 97,
+      "temp": 36.5
+    },
+    "initial": {
+      "hr": 126,
+      "sbp": 92,
+      "dbp": 58,
+      "rr": 32,
+      "spo2": 88,
+      "temp": 36.4
+    },
+    "worst": {
+      "hr": 150,
+      "sbp": 55,
+      "dbp": 30,
+      "rr": 42,
+      "spo2": 70,
+      "temp": 36.3
+    }
+  },
+  "arrest": {
+    "rhythm": "pea",
+    "requireAdrenaline": false,
+    "reversibleBy": [
+      "needle_r",
+      "finger_r"
+    ],
+    "roscSeverity": 0.6
+  },
+  "speech": {
+    "impairedAbove": 0.8,
+    "impairedText": "(Too breathless to answer. He grips your arm.)"
+  },
+  "appearance": [
+    {
+      "below": 0.2,
+      "text": "Breathing more easily and talking in sentences. Colour improving."
+    },
+    {
+      "below": 0.45,
+      "text": "Breathless but talking in short sentences."
+    },
+    {
+      "below": 0.75,
+      "text": "Severely distressed, sitting up, speaking in single words. Lips dusky."
+    },
+    {
+      "below": 1.01,
+      "text": "Agitated, then drowsy. Gasping and grey."
+    }
+  ],
+  "history": [
+    {
+      "id": "h_para",
+      "q": "Ask the paramedic for a handover",
+      "source": "Paramedic",
+      "keywords": [
+        "paramedic",
+        "handover",
+        "ambulance",
+        "mist",
+        "crew"
+      ],
+      "a": "MIST: motorcycle versus car, about 50 km/h, helmet on, no loss of consciousness. Injury to the right chest wall. On scene HR 110, BP 118/76, RR 26, SpO₂ 94%, getting worse en route. Oxygen by face mask. We couldn’t get IV access."
+    },
+    {
+      "id": "h_what",
+      "q": "What happened?",
+      "keywords": [
+        "what happen",
+        "accident",
+        "crash",
+        "how did",
+        "hit"
+      ],
+      "a": "Bike… car hit me… chest… handlebar."
+    },
+    {
+      "id": "h_pain",
+      "q": "Where does it hurt?",
+      "keywords": [
+        "pain",
+        "hurt",
+        "where",
+        "sore"
+      ],
+      "a": "Right side… hurts to breathe."
+    },
+    {
+      "id": "h_breath",
+      "q": "How is your breathing?",
+      "keywords": [
+        "breath",
+        "air"
+      ],
+      "a": "Can’t… get air. Worse… and worse."
+    },
+    {
+      "id": "h_other",
+      "q": "Any pain in your head, neck, tummy or legs?",
+      "keywords": [
+        "head",
+        "neck",
+        "back",
+        "abdom",
+        "belly",
+        "tummy",
+        "leg",
+        "anywhere else"
+      ],
+      "a": "Just… chest."
+    },
+    {
+      "id": "h_allergy",
+      "q": "Any allergies?",
+      "keywords": [
+        "allerg"
+      ],
+      "a": "No."
+    },
+    {
+      "id": "h_pmh",
+      "q": "Any medical problems or medicines?",
+      "keywords": [
+        "medical",
+        "problem",
+        "medic",
+        "tablet",
+        "asthma",
+        "lung"
+      ],
+      "a": "None… healthy."
+    }
+  ],
+  "exam": [
+    {
+      "id": "e_airway",
+      "label": "Airway",
+      "text": "Talking in short phrases. Airway patent, no stridor."
+    },
+    {
+      "id": "e_trachea",
+      "label": "Trachea & neck veins",
+      "text": "Trachea deviated to the LEFT. Neck veins distended.",
+      "variants": [
+        {
+          "if": {
+            "done": [
+              "needle_r",
+              "finger_r"
+            ]
+          },
+          "text": "Trachea central. Neck veins no longer distended."
+        }
+      ]
+    },
+    {
+      "id": "e_chest",
+      "label": "Chest",
+      "text": "Bruising over the right lateral chest wall. Reduced expansion, hyper-resonant percussion and absent breath sounds on the right. Left side normal.",
+      "variants": [
+        {
+          "if": {
+            "done": [
+              "needle_r",
+              "finger_r"
+            ]
+          },
+          "text": "Bruising over the right lateral chest wall. Breath sounds returning on the right, less resonant. Left side normal."
+        }
+      ]
+    },
+    {
+      "id": "e_circ",
+      "label": "Circulation",
+      "text": "Rapid, thready pulse. Capillary refill 4 s. Heart sounds normal."
+    },
+    {
+      "id": "e_abdo",
+      "label": "Abdomen & pelvis",
+      "text": "Soft, non-tender, no bruising. Pelvis not examined by springing (binder not indicated)."
+    },
+    {
+      "id": "e_neuro",
+      "label": "Disability",
+      "text": "GCS 14 (E4 V4 M6). Pupils equal and reactive. Moving all four limbs."
+    },
+    {
+      "id": "e_expo",
+      "label": "Exposure",
+      "text": "Abrasions to the right arm. No long-bone deformity."
+    }
+  ],
+  "investigations": [
+    {
+      "id": "i_efast",
+      "group": "Bedside",
+      "label": "eFAST ultrasound",
+      "time": 90,
+      "text": "Right: absent lung sliding, barcode sign on M-mode. Left: lung sliding present. No pericardial effusion. No free fluid in the abdomen.",
+      "variants": [
+        {
+          "if": {
+            "done": [
+              "needle_r",
+              "finger_r"
+            ]
+          },
+          "text": "Right: lung sliding partly visible anteriorly. Left: normal. No pericardial effusion. No free fluid."
+        }
+      ]
+    },
+    {
+      "id": "i_vbg",
+      "group": "Bedside",
+      "label": "Venous blood gas",
+      "time": 180,
+      "text": "pH 7.28, pCO₂ 55 mmHg, lactate 4.1 mmol/L, Hb 13.9 g/dL."
+    },
+    {
+      "id": "i_cbg",
+      "group": "Bedside",
+      "label": "Capillary glucose",
+      "time": 60,
+      "text": "7.4 mmol/L (133 mg/dL)."
+    },
+    {
+      "id": "i_bloods",
+      "group": "Laboratory",
+      "label": "Trauma bloods, group & crossmatch",
+      "time": 1200,
+      "text": "Hb 13.6 g/dL, platelets 210 ×10⁹/L, INR 1.0. Group O RhD positive; 2 units crossmatched."
+    },
+    {
+      "id": "i_cxr",
+      "group": "Imaging",
+      "label": "Chest X-ray (portable)",
+      "time": 600,
+      "text": "Large right pneumothorax with mediastinal shift to the left and a flattened right hemidiaphragm.",
+      "variants": [
+        {
+          "if": {
+            "done": [
+              "icd_r"
+            ]
+          },
+          "text": "Right chest drain in situ; lung re-expanded. Undisplaced fractures of the right 5th and 6th ribs. Mediastinum central."
+        },
+        {
+          "if": {
+            "done": [
+              "needle_r",
+              "finger_r"
+            ]
+          },
+          "text": "Right pneumothorax, smaller; decompression device in situ. Mediastinum central."
+        }
+      ]
+    },
+    {
+      "id": "i_ct",
+      "group": "Imaging",
+      "label": "CT chest (trauma series)",
+      "time": 1200,
+      "text": "Right chest drain in situ, small residual pneumothorax, undisplaced right 5th–6th rib fractures, small lung contusion. No other injury.",
+      "variants": [
+        {
+          "if": {
+            "severityAbove": 0.3
+          },
+          "text": "Radiographer: “He’s too unstable to come to CT. Stabilise him first.”"
+        }
+      ]
+    }
+  ],
+  "interventions": [
+    {
+      "id": "iv_access",
+      "label": "IV access",
+      "detail": "Two large-bore cannulae (IO if not possible)"
+    },
+    {
+      "id": "call_trauma",
+      "group": "Help & referral",
+      "label": "Call trauma team",
+      "detail": "Trauma team leader / senior",
+      "once": true,
+      "say": "Nurse: “Trauma team called.”"
+    },
+    {
+      "id": "cspine",
+      "group": "Airway & breathing",
+      "label": "Cervical spine protection",
+      "detail": "Manual in-line stabilisation",
+      "once": true
+    },
+    {
+      "id": "o2",
+      "group": "Airway & breathing",
+      "label": "High-flow oxygen",
+      "detail": "15 L/min via non-rebreather mask",
+      "once": true,
+      "effects": {
+        "vitals": {
+          "spo2": 4
+        },
+        "onset": 60
+      },
+      "say": "Nurse: “Non-rebreather on at 15 litres.”"
+    },
+    {
+      "id": "needle_r",
+      "group": "Procedures",
+      "label": "Needle decompression, RIGHT",
+      "detail": "4th/5th ICS just anterior to mid-axillary line (or 2nd ICS MCL)",
+      "max": 3,
+      "effects": {
+        "severity": -0.45,
+        "onset": 20,
+        "progression": {
+          "factor": 0.25
+        }
+      },
+      "say": "A hiss of air on insertion."
+    },
+    {
+      "id": "needle_l",
+      "group": "Procedures",
+      "label": "Needle decompression, LEFT",
+      "detail": "4th/5th ICS just anterior to mid-axillary line",
+      "once": true,
+      "harm": {
+        "points": 20,
+        "why": "Wrong side. Decompressing the normal side creates a pneumothorax in the good lung."
+      },
+      "effects": {
+        "severity": 0.25,
+        "onset": 60
+      },
+      "say": "No rush of air."
+    },
+    {
+      "id": "finger_r",
+      "group": "Procedures",
+      "label": "Finger thoracostomy, RIGHT",
+      "detail": "4th/5th ICS, just anterior to mid-axillary line",
+      "once": true,
+      "effects": {
+        "severity": -0.5,
+        "onset": 20,
+        "progression": {
+          "factor": 0.1
+        }
+      },
+      "say": "A rush of air through the thoracostomy."
+    },
+    {
+      "id": "icd_r",
+      "group": "Procedures",
+      "label": "Chest drain (ICD), RIGHT",
+      "detail": "Safe triangle, underwater seal",
+      "once": true,
+      "effects": {
+        "severity": -0.35,
+        "onset": 240,
+        "progression": {
+          "factor": 0
+        }
+      },
+      "say": "Nurse: “Drain in. It’s swinging and bubbling.”"
+    },
+    {
+      "id": "intubate",
+      "group": "Airway & breathing",
+      "label": "RSI and intubation",
+      "once": true,
+      "effects": {
+        "severity": 0.35,
+        "onset": 45,
+        "unlessDone": [
+          "needle_r",
+          "finger_r"
+        ]
+      },
+      "feedback": "Positive-pressure ventilation can turn a simple pneumothorax into a tension pneumothorax. Decompress first, and have a chest drain in place when ventilating."
+    },
+    {
+      "id": "fluids",
+      "group": "Circulation",
+      "label": "Warmed crystalloid 250 mL",
+      "requires": [
+        "iv_access"
+      ],
+      "max": 4,
+      "effects": {
+        "vitals": {
+          "sbp": 5
+        },
+        "onset": 120,
+        "duration": 600
+      }
+    },
+    {
+      "id": "blood",
+      "group": "Circulation",
+      "label": "Transfuse O-negative blood",
+      "detail": "2 units",
+      "requires": [
+        "iv_access"
+      ],
+      "once": true,
+      "feedback": "Nothing suggested haemorrhage: this shock was obstructive. Blood carries its own risks."
+    },
+    {
+      "id": "analgesia",
+      "group": "Medications",
+      "label": "Fentanyl 50 micrograms IV, titrated",
+      "requires": [
+        "iv_access"
+      ],
+      "max": 3
+    }
+  ],
+  "diagnoses": [
+    {
+      "id": "dx_tension",
+      "label": "Right tension pneumothorax"
+    },
+    {
+      "id": "dx_simple",
+      "label": "Simple right pneumothorax"
+    },
+    {
+      "id": "dx_haemo",
+      "label": "Massive right haemothorax"
+    },
+    {
+      "id": "dx_tamp",
+      "label": "Cardiac tamponade"
+    },
+    {
+      "id": "dx_flail",
+      "label": "Flail chest with pulmonary contusion"
+    },
+    {
+      "id": "dx_abdo",
+      "label": "Hypovolaemic shock from intra-abdominal bleeding"
+    }
+  ],
+  "dispositions": [
+    {
+      "id": "disp_hdu",
+      "label": "Admit under trauma surgery (HDU) with chest drain; CT once stable"
+    },
+    {
+      "id": "disp_ct",
+      "label": "Straight to CT now, then decide"
+    },
+    {
+      "id": "disp_theatre",
+      "label": "Emergency thoracotomy in theatre"
+    },
+    {
+      "id": "disp_home",
+      "label": "Discharge after observation"
+    }
+  ],
+  "scoring": {
+    "critical": [
+      {
+        "id": "c_decomp",
+        "label": "Right chest decompressed",
+        "anyOf": [
+          "needle_r",
+          "finger_r"
+        ],
+        "within": 240,
+        "points": 35,
+        "why": "Tension pneumothorax is a clinical diagnosis. Decompress immediately, before imaging."
+      },
+      {
+        "id": "c_o2",
+        "label": "High-flow oxygen",
+        "anyOf": [
+          "o2"
+        ],
+        "within": 120,
+        "points": 10,
+        "why": "Hypoxaemia in major trauma."
+      },
+      {
+        "id": "c_icd",
+        "label": "Chest drain inserted",
+        "anyOf": [
+          "icd_r"
+        ],
+        "within": 1200,
+        "points": 10,
+        "why": "Needle decompression is temporary. A chest drain is the definitive treatment."
+      }
+    ],
+    "recommended": [
+      {
+        "id": "r_help",
+        "label": "Called the trauma team",
+        "anyOf": [
+          "call_trauma"
+        ],
+        "points": 5
+      },
+      {
+        "id": "r_mon",
+        "label": "Monitoring attached",
+        "anyOf": [
+          "monitor"
+        ],
+        "points": 5
+      },
+      {
+        "id": "r_chest",
+        "label": "Examined chest, trachea and neck veins",
+        "anyOf": [
+          "e_chest",
+          "e_trachea"
+        ],
+        "points": 5
+      },
+      {
+        "id": "r_handover",
+        "label": "Took the paramedic handover",
+        "anyOf": [
+          "h_para"
+        ],
+        "points": 4
+      },
+      {
+        "id": "r_iv",
+        "label": "IV access obtained",
+        "anyOf": [
+          "iv_access"
+        ],
+        "points": 3
+      },
+      {
+        "id": "r_cspine",
+        "label": "Cervical spine protected",
+        "anyOf": [
+          "cspine"
+        ],
+        "points": 2
+      },
+      {
+        "id": "r_analgesia",
+        "label": "Analgesia given",
+        "anyOf": [
+          "analgesia"
+        ],
+        "points": 2
+      }
+    ],
+    "penalties": [
+      {
+        "ifAction": "i_cxr",
+        "before": [
+          "needle_r",
+          "finger_r"
+        ],
+        "points": 8,
+        "why": "A chest X-ray was requested before decompression. Tension pneumothorax is a clinical diagnosis; imaging delays life-saving treatment."
+      },
+      {
+        "ifAction": "intubate",
+        "before": [
+          "needle_r",
+          "finger_r"
+        ],
+        "points": 15,
+        "why": "Intubated before decompressing the chest. Positive-pressure ventilation worsens tension physiology and can precipitate arrest."
+      },
+      {
+        "ifAction": "i_ct",
+        "when": {
+          "sbp": {
+            "lt": 90
+          }
+        },
+        "points": 8,
+        "why": "CT was requested while the patient was hypotensive. Unstable patients go to CT only after stabilisation."
+      }
+    ],
+    "diagnosis": {
+      "correct": "dx_tension",
+      "points": 15
+    },
+    "disposition": {
+      "correct": "disp_hdu",
+      "points": 10
+    }
+  },
+  "teaching": [
+    "Tension pneumothorax is a clinical diagnosis: respiratory distress, hypoxia, tachycardia and hypotension with unilateral absent breath sounds and hyper-resonance. Tracheal deviation and distended neck veins are late and unreliable signs.",
+    "Decompress immediately. Do not wait for a chest X-ray.",
+    "ATLS (10th edition) recommends needle decompression in adults at the 4th/5th intercostal space just anterior to the mid-axillary line, where the chest wall is thinner. The 2nd intercostal space in the mid-clavicular line is still used in children and some systems.",
+    "Needles kink, block and fall short. Reassess after decompression. Finger thoracostomy is preferred in ventilated or arrested patients. Follow with a chest drain.",
+    "Positive-pressure ventilation can turn a simple pneumothorax into a tension pneumothorax.",
+    "In traumatic cardiac arrest, treat reversible causes (hypoxia, tension pneumothorax, tamponade, hypovolaemia) before adrenaline."
+  ],
+  "references": [
+    "American College of Surgeons. Advanced Trauma Life Support (ATLS), 10th edition (2018).",
+    "European Resuscitation Council Guidelines 2021: cardiac arrest in special circumstances (traumatic cardiac arrest)."
+  ]
+}

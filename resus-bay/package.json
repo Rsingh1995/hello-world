@@ -1,0 +1,15 @@
+{
+  "name": "resus-bay",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Virtual patient simulator for medical education: real-time cases, teacher case editor, classes, assignments and analytics.",
+  "type": "module",
+  "engines": { "node": ">=22.13" },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning server/index.js",
+    "dev": "node --disable-warning=ExperimentalWarning --watch server/index.js",
+    "test": "node --disable-warning=ExperimentalWarning --test test/*.test.js",
+    "create-admin": "node --disable-warning=ExperimentalWarning scripts/create-admin.js",
+    "backup": "node --disable-warning=ExperimentalWarning scripts/backup.js"
+  }
+}
